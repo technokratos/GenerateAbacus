@@ -1,0 +1,9 @@
+package dbk.abacus;
+
+/**
+ * Created by dbk on 05-Nov-16.
+ */
+public enum Book {
+    EVEN,//??????
+    ODD;//????????
+}
