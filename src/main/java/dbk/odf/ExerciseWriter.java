@@ -104,14 +104,17 @@ public class ExerciseWriter {
                 numberHeader.setValue(Texts.NUMBER_SYMBOLL.getText());
                 //merge the first cell
                 int startMergeRow = lastRowNumber + 1;
-                int rowToMerge = series.get(0).size() - 1;
+
+                //todo check -1 for addSum;
+                int rowToMerge = series.get(0).size() - 1 + (settings.getAddSum()? -1:0);
                 sheet.merge(FIRST_COLUMN, startMergeRow, 0, rowToMerge);
                 System.out.println("  Merge startMergeRow " +  startMergeRow + " rowToMerge " + rowToMerge + " lastRowNumber " + lastRowNumber );
                 //set border style for merged cells
                 Cell seriesHeader = getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow);
                 seriesHeader.setValue(Integer.toString(groupSeriesIndex + 1));
                 //don't work
-                int rowForSumma = lastRowNumber + 1 + series.get(0).size();
+                //todo check 1 for
+                int rowForSumma = lastRowNumber + (settings.getAddSum()? 1 : 0 ) + series.get(0).size();
                 System.out.println("  Draw summa " + rowForSumma );
                 getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
 

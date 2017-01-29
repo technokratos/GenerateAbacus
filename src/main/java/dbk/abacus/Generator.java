@@ -1,5 +1,7 @@
 package dbk.abacus;
 
+import dbk.rand.Rand;
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -13,7 +15,11 @@ public class Generator {
     int index = 0;
     final int limit;
 
-    final Random r = new Random();
+    final Random r = getRandom();
+
+    public static Random getRandom() {
+        return Rand.getR();
+    }
 
     public Generator(int size, int limit) {
         this.limit = limit;

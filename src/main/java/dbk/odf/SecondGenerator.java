@@ -2,6 +2,7 @@ package dbk.odf;
 
 import dbk.abacus.Level;
 import dbk.abacus.Tuple2;
+import dbk.rand.Rand;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -16,7 +17,7 @@ import static dbk.odf.Digs.possiblePositiveCarry;
  */
 public class SecondGenerator {
 
-    private Random r = new Random();
+    private Random r = Rand.getR();
 
     public static final int ATTEMPT_LIMIT = 10;
     private final List<Level> levels;
@@ -25,7 +26,7 @@ public class SecondGenerator {
         this.levels = levels;
     }
 
-    public List<Tuple2<Level, List<List<List<Integer>>>>> generate(boolean addSum) {
+    public List<Tuple2<Level, List<List<List<Integer>>>>> generate() {
 
         //        int[][][] exercises  = new int[levels.size()][seriesCount][stepCountWithSum];
         List<Tuple2<Level, List<List<List<Integer>>>>> exercises = new ArrayList<>();
@@ -47,7 +48,7 @@ public class SecondGenerator {
             for (Settings currentSettings : level.getSettings()) {
                 countSettings++;
                 int stepCount = currentSettings.getSteps();
-                int stepCountWithSum = stepCount + ((addSum) ? 1 : 0);
+                int stepCountWithSum = stepCount + ((currentSettings.getAddSum()) ? 1 : 0);
                 int seriesCount = currentSettings.getSeries();
 
 
@@ -69,7 +70,7 @@ public class SecondGenerator {
 //                    addDuplicate(steps, currentSettings);
 
                     series.add(steps);
-                    boolean invalid = level.getMarker().mark(steps, addSum);
+                    boolean invalid = level.getMarker().mark(steps, currentSettings.getAddSum());
                     if (invalid) {
                         System.out.println("Level " + level.getTitle() + " settings " + countSettings
                         + " series " + seriesIndex + " steps " + steps);

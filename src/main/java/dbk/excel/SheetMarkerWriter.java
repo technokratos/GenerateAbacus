@@ -63,7 +63,7 @@ public class SheetMarkerWriter {
 
 
                         cell.setBackgroundColor(Color.LIGHT_GRAY);
-                        cell.setHorStyleWithBorder();
+                        //cell.setHorStyleWithBorder();
                     }
                 }
             }

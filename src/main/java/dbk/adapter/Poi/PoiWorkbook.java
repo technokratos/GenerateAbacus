@@ -88,7 +88,7 @@ public class PoiWorkbook extends Workbook {
         FileOutputStream fileOut = new FileOutputStream(fileName);
         workbook.write(fileOut);
         fileOut.close();
-        workbook.close();
+        //workbook.close();
     }
 
     public HSSFWorkbook getWorkbook() {
@@ -106,7 +106,7 @@ public class PoiWorkbook extends Workbook {
             horBorderedStyle.setVerticalAlignment(CellStyle.ALIGN_CENTER);
             HSSFFont font = workbook.createFont();
             font.setFontHeightInPoints(ExerciseWriter.VER_HEADER_FONT_SIZE);
-            font.setBold(true);
+            font.setBoldweight((short) 2);//setBold(true);
             horBorderedStyle.setFont(font);
         }
         return horBorderedStyle;
@@ -143,7 +143,7 @@ public class PoiWorkbook extends Workbook {
     public HSSFFont getNumOfColumnFont() {
         if (numOfColumnFont == null) {
             numOfColumnFont = workbook.createFont();
-            numOfColumnFont.setBold(true);
+            numOfColumnFont.setBoldweight((short) 2);//setBold(true);
             numOfColumnFont.setFontHeightInPoints(ExerciseWriter.HOR_HEADER_FONT_SIZE);
         }
         return numOfColumnFont;

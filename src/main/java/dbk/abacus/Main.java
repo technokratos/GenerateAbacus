@@ -1,9 +1,11 @@
 package dbk.abacus;
 
+import dbk.rand.Rand;
+
 import java.util.Random;
 
 public class Main {
-    static Random r = new Random();
+    static Random r = Rand.getR();
     public static void main(String[] args) {
 
         int[][] first = generateSeries(3, 10);
