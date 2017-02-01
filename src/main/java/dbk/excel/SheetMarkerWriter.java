@@ -3,10 +3,7 @@ package dbk.excel;
 import dbk.abacus.Count;
 import dbk.abacus.Level;
 import dbk.abacus.Tuple2;
-import dbk.adapter.Cell;
-import dbk.adapter.Sheet;
-import dbk.adapter.WorkbookFactory;
-import dbk.adapter.Workbook;
+import dbk.adapter.*;
 
 import java.awt.*;
 import java.io.IOException;
@@ -31,6 +28,9 @@ public class SheetMarkerWriter {
 
 
         Workbook workbook = WorkbookFactory.getWorkbook(WorkbookFactory.Library.POI, fileName);
+
+        Style backGroundGray = workbook.getStyle("BACK_GROUND_GRAY", style -> style.setBackgroundColor(Color.LIGHT_GRAY));
+
         for (Tuple2<Level, SortedMap<Tuple2<Integer, Integer>, Count>> tuple2 : result) {
             Level level = tuple2.getA();
             Sheet sheet = workbook.addSheet(level.getTitle());
@@ -62,7 +62,7 @@ public class SheetMarkerWriter {
                         Cell cell = sheet.getCellAt(columnNumber, rowNumber);
 
 
-                        cell.setBackgroundColor(Color.LIGHT_GRAY);
+                        cell.setStyle(backGroundGray);
                         //cell.setHorStyleWithBorder();
                     }
                 }

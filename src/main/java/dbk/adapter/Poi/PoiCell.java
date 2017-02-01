@@ -2,6 +2,7 @@ package dbk.adapter.Poi;
 
 import dbk.adapter.Cell;
 import dbk.adapter.Sheet;
+import dbk.adapter.Style;
 import dbk.adapter.Workbook;
 import dbk.odf.ExerciseWriter;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -16,7 +17,7 @@ import java.awt.*;
  */
 public class PoiCell extends Cell {
     private final HSSFCell cell;
-    private static HSSFCellStyle style;
+
     private final Sheet sheet;
 
 
@@ -39,51 +40,7 @@ public class PoiCell extends Cell {
         return sheet;
     }
 
-    @Override
-    public void setBackgroundColor(Color lightGray) {
-        getStyle();
-        cell.getCellStyle().setFillBackgroundColor(new HSSFColor.BRIGHT_GREEN().getIndex() );
-        //cell.setCellStyle(new HSSFCellStyle());
-//        cell.getCellStyle().setBorderBottom(CellStyle.BORDER_DOUBLE);
-//        cell.getCellStyle().setBorderTop(CellStyle.BORDER_DOUBLE);
-//        //cell.getCellStyle().setBorderRight(CellStyle.BORDER_DOUBLE);
-//        //cell.getCellStyle().setBorderLeft(CellStyle.BORDER_DOUBLE);
-    }
-    public void setHorStyleWithBorder() {
-        Workbook workbook = sheet.getWorkbook();
-        HSSFCellStyle style =  ((PoiWorkbook) workbook).getHorBorderedStyle();
-        //style.setFont(((PoiWorkbook) workbook).getNumOfColumnFont());
 
-        cell.setCellStyle(style);
-    }
-
-    public void setVertStyleWithBorder() {
-        Workbook workbook = sheet.getWorkbook();
-        HSSFCellStyle style =  ((PoiWorkbook) workbook).getVerBorderedStyle();
-        //style.setFont(((PoiWorkbook) workbook).getNumOfColumnFont());
-        cell.setCellStyle(style);
-        cell.getCellStyle().setBorderBottom(CellStyle.BORDER_MEDIUM);
-    }
-    public void setThinBorder(){
-        int size = ExerciseWriter.MAIN_TEXT_SIZE;
-        //HSSFCellStyle style =  ((PoiWorkbook) workbook).getVerBorderedStyle(); getThinBorderedStyle()
-        setSize(size);
-    }
-
-    private void setSize(int size) {
-        Workbook workbook = sheet.getWorkbook();
-        HSSFCellStyle style =((PoiWorkbook) workbook).getFontBySize(size);
-        style.setWrapText(true);
-        cell.setCellStyle(style);
-    }
-
-    private void getStyle() {
-        if (this.style == null) {
-            HSSFCellStyle style = cell.getSheet().getWorkbook().createCellStyle();
-            this.style = style;
-            cell.setCellStyle(style);
-        }
-    }
 
     @Override
     public void setValue(Number value) {
@@ -92,22 +49,20 @@ public class PoiCell extends Cell {
 
     @Override
     public void setFontSize(int size) {
-//        getStyle();
-////        PoiWorkbook workbook = (PoiWorkbook) this.getSheet().getWorkbook();
-////        HSSFFont font = workbook.getWorkbook().createFont();
-////
-////        //font.setFontHeight((short) size);
-////        font.setFontHeightInPoints((short) size);
-//        HSSFFont font = getFont(size);
-//        style.setFont(font);
-//        cell.setCellStyle(style);
-        //setSize(size);
 
-        PoiWorkbook workbook = (PoiWorkbook) this.getSheet().getWorkbook();
-        cell.setCellStyle(workbook.getFontBySize(size));
-
+        String styleName = "FONT_SIZE_" + size;
+        Style style = this.getSheet().getWorkbook().getStyle(styleName, style1 -> style1.setFontSize(size));
+        style.setFontSize(size);
 
     }
 
+    @Override
+    public void setStyle(Style style) {
+        cell.setCellStyle(((PoiStyle)style).getStyle());
+    }
 
+    @Override
+    public void setHeight(int size) {
+        cell.getRow().setHeight((short) size);
+    }
 }

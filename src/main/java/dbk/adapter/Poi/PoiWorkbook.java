@@ -1,6 +1,7 @@
 package dbk.adapter.Poi;
 
 import dbk.adapter.Sheet;
+import dbk.adapter.Style;
 import dbk.adapter.Workbook;
 import dbk.odf.ExerciseWriter;
 import org.apache.poi.hssf.model.InternalWorkbook;
@@ -25,26 +26,9 @@ public class PoiWorkbook extends Workbook {
     public static final short VERT_HEADER_FONT_SIZE = (short) 20;
     private final HSSFWorkbook workbook;
     String fileName;
-    private HSSFCellStyle horBorderedStyle;
-    private HSSFCellStyle verBorderedStyle;
-    private HSSFCellStyle thinBorderedStyle;
-    private HSSFFont numOfColumnFont;
-    static Map<Integer, HSSFCellStyle> fontMap = new HashMap<>();
 
-    public HSSFCellStyle getFontBySize(int size){
-        HSSFCellStyle style = fontMap.get(size);
-        if (style == null) {
-            style = getThinBorderedStyle();//workbook.createCellStyle();
-            HSSFFont font = workbook.createFont();
-            font.setFontHeightInPoints((short) size);
-            style.setFont(font);
-            style.setAlignment(CellStyle.ALIGN_CENTER);
-            style.setVerticalAlignment(CellStyle.ALIGN_CENTER);
 
-            fontMap.put(size, style);
-        }
-        return style;
-    }
+
 
     public PoiWorkbook(String fileName) {
 //        workbook = HSSFWorkbook.create(InternalWorkbook.createWorkbook());
@@ -91,61 +75,16 @@ public class PoiWorkbook extends Workbook {
         //workbook.close();
     }
 
+    @Override
+    protected Style initStyle() {
+        HSSFCellStyle cellStyle = getWorkbook().createCellStyle();
+        cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+        return new PoiStyle(cellStyle, this);
+
+    }
+
     public HSSFWorkbook getWorkbook() {
         return workbook;
     }
 
-    public HSSFCellStyle getHorBorderedStyle() {
-        if (horBorderedStyle == null) {
-            horBorderedStyle = workbook.createCellStyle();
-            horBorderedStyle.setBorderBottom(CellStyle.BORDER_THIN);
-            horBorderedStyle.setBorderTop(CellStyle.BORDER_THIN);
-            horBorderedStyle.setBorderRight(CellStyle.BORDER_THIN);
-            horBorderedStyle.setBorderLeft(CellStyle.BORDER_THIN);
-            horBorderedStyle.setAlignment(CellStyle.ALIGN_CENTER);
-            horBorderedStyle.setVerticalAlignment(CellStyle.ALIGN_CENTER);
-            HSSFFont font = workbook.createFont();
-            font.setFontHeightInPoints(ExerciseWriter.VER_HEADER_FONT_SIZE);
-            font.setBoldweight((short) 2);//setBold(true);
-            horBorderedStyle.setFont(font);
-        }
-        return horBorderedStyle;
     }
-    public HSSFCellStyle getVerBorderedStyle() {
-        if (verBorderedStyle == null) {
-            verBorderedStyle = workbook.createCellStyle();
-            verBorderedStyle.setBorderBottom(CellStyle.BORDER_THIN);
-            verBorderedStyle.setBorderTop(CellStyle.BORDER_THIN);
-            verBorderedStyle.setBorderRight(CellStyle.BORDER_THIN);
-            verBorderedStyle.setBorderLeft(CellStyle.BORDER_THIN);
-            verBorderedStyle.setAlignment(CellStyle.ALIGN_CENTER);
-            verBorderedStyle.setVerticalAlignment(CellStyle.ALIGN_CENTER);
-            HSSFFont font = workbook.createFont();
-            font.setFontHeightInPoints(ExerciseWriter.HOR_HEADER_FONT_SIZE);
-            verBorderedStyle.setFont(font);
-        }
-        return verBorderedStyle;
-    }
-
-    public HSSFCellStyle getThinBorderedStyle() {
-        if (thinBorderedStyle == null) {
-            thinBorderedStyle = workbook.createCellStyle();
-            thinBorderedStyle.setBorderBottom(CellStyle.BORDER_THIN);
-            thinBorderedStyle.setBorderTop(CellStyle.BORDER_THIN);
-            thinBorderedStyle.setBorderRight(CellStyle.BORDER_THIN);
-            thinBorderedStyle.setBorderLeft(CellStyle.BORDER_THIN);
-            thinBorderedStyle.setAlignment(CellStyle.ALIGN_CENTER);
-            thinBorderedStyle.setVerticalAlignment(CellStyle.ALIGN_CENTER);
-        }
-        return thinBorderedStyle;
-    }
-
-    public HSSFFont getNumOfColumnFont() {
-        if (numOfColumnFont == null) {
-            numOfColumnFont = workbook.createFont();
-            numOfColumnFont.setBoldweight((short) 2);//setBold(true);
-            numOfColumnFont.setFontHeightInPoints(ExerciseWriter.HOR_HEADER_FONT_SIZE);
-        }
-        return numOfColumnFont;
-    }
-}

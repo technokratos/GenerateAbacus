@@ -1,7 +1,9 @@
 package dbk.adapter.jopen;
 
 import dbk.adapter.Sheet;
+import dbk.adapter.Style;
 import dbk.adapter.Workbook;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 
@@ -23,5 +25,11 @@ public class JOpenWorkbook extends Workbook {
     @Override
     public void saveAs() throws IOException {
 
+    }
+
+    @Override
+    protected Style initStyle() {
+        //todo
+        throw new NotImplementedException();
     }
 }

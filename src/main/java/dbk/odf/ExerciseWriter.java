@@ -2,10 +2,7 @@ package dbk.odf;
 import dbk.abacus.Book;
 import dbk.abacus.Level;
 import dbk.abacus.Tuple2;
-import dbk.adapter.Cell;
-import dbk.adapter.Sheet;
-import dbk.adapter.WorkbookFactory;
-import dbk.adapter.Workbook;
+import dbk.adapter.*;
 import dbk.texts.Texts;
 
 import java.io.IOException;
@@ -23,9 +20,9 @@ public class ExerciseWriter {
      */
     public static final int ADDITIONAL_ROWS = 6;
 
-    public static final short MAIN_TEXT_SIZE = 14;
+    public static final short MAIN_TEXT_SIZE = 13;
     public static final short HOR_HEADER_FONT_SIZE = 20;
-    public static final short VER_HEADER_FONT_SIZE = 14;
+    public static final short VER_HEADER_FONT_SIZE = 12;
     private static final int FIRST_COLUMN = 0;
     public static final int THIRD_TITLE_COLUMN = 8;
     public static final int PAGE_NUMBER_COLUMN = THIRD_TITLE_COLUMN + 2;
@@ -46,8 +43,8 @@ public class ExerciseWriter {
         Workbook workbook = WorkbookFactory.getWorkbook(WorkbookFactory.Library.POI, fileName);
 
         int pageNumber = 1;
-        pageNumber = addPageWithName(workbook, pageNumber);
-        pageNumber = addPageWithSchedule(workbook, pageNumber, book);
+        //pageNumber = addPageWithName(workbook, pageNumber);
+        //pageNumber = addPageWithSchedule(workbook, pageNumber, book);
         int lastRowNumber = 0;
 
         Sheet sheet = null;
@@ -88,7 +85,7 @@ public class ExerciseWriter {
                 System.out.println("  Try print description  " + settings.description + " "  + settings.description1  + " " + settings.description2 +  " lastRowNumber " + lastRowNumber );
                 lastRowNumber = setDescription(sheet, lastRowNumber, settings);
 
-                lastRowNumber++;//???????? ?????? ??? ??????????
+                //lastRowNumber++;//???????? ?????? ??? ??????????
                 for (int seriesIndex = 0; seriesIndex < series.size(); seriesIndex++) {
                     //set header of series
                     int column = seriesIndex + 1;
@@ -114,9 +111,7 @@ public class ExerciseWriter {
                 seriesHeader.setValue(Integer.toString(groupSeriesIndex + 1));
                 //don't work
                 //todo check 1 for
-                int rowForSumma = lastRowNumber + (settings.getAddSum()? 1 : 0 ) + series.get(0).size();
-                System.out.println("  Draw summa " + rowForSumma );
-                getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
+
 
                 //seriesHeader.setFontSize(24);
 
@@ -136,11 +131,38 @@ public class ExerciseWriter {
                         Integer value = steps.get(stepIndex);
                         Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
                         cellAt.setValue(value);
+
+                        if (stepIndex == steps.size() - 1 && settings.getAddSum()  ) {
+                            Style thinBorder = cellAt.getSheet().getWorkbook().getStyle("THIN_BORDER", Style::setThinBorder);
+                            thinBorder.setThinBorder();
+                            cellAt.setStyle(thinBorder);
+                        } else {
+                            Style centerStyle = cellAt.getSheet().getWorkbook().getStyle("CENTER_ALIGN", Style::setVertStyleWithBorder);
+                            cellAt.setStyle(centerStyle);
+                        }
+
                     }
-                    //place for summ
-                    Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, steps.size() + lastRowNumber);
-                    cellAt.setValue("");
+                    //empty place for summ
+                    if (!settings.getAddSum()) {
+                        Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, steps.size() + lastRowNumber);
+                        Style thinBorder = cellAt.getSheet().getWorkbook().getStyle("THIN_BORDER", Style::setThinBorder);
+                        cellAt.setStyle(thinBorder);
+                        cellAt.setValue("");
+
+                    }
                 }
+
+                //answer header of row
+                int rowForSumma = lastRowNumber + (settings.getAddSum()? -1:0) + series.get(0).size();
+                System.out.println("  Draw summa " + rowForSumma );
+                getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
+
+                if (!settings.getAddSum()) {
+                    lastRowNumber++;//add empty row for answer
+                }
+
+
+
                 lastRowNumber+= series.iterator().next().size();//with step for answer
                 //lastRowNumber ++;
                 System.out.println("  The end of series " + " lastRowNumber " + lastRowNumber );
@@ -290,7 +312,8 @@ public class ExerciseWriter {
     private Cell getCell(Sheet sheet, int columnNumber, int rowNumber) {
 
         Cell cellAt = sheet.getCellAt(columnNumber, rowNumber);
-        cellAt.setThinBorder();
+        //cellAt.setThinBorder();
+        cellAt.setHeight(300);
         return cellAt;
     }
 
@@ -298,33 +321,19 @@ public class ExerciseWriter {
 //return getSideAttribute(s, "border", this.getNS("fo"));, attrName + "-" + s.name().toLowerCase()
         // "RIGHT" -> "thin solid #000000"
         Cell cellAt = sheet.getCellAt(column, lastRowNumber);
-        cellAt.setHorStyleWithBorder();
-        //((StyleStyleDesc) cellAt.getStyleDesc()).createDefaultElement()
-        //StyleStyleDesc<ColumnStyle> styleStyleDesc = Style.getStyleStyleDesc(ColumnStyle.class, XMLVersion.getVersion(cellAt.getElement()));
-        //ColumnStyle defaultStyle = styleStyleDesc.getDefaultStyle(sheet.getODDocument().getPackage(), true);
-
-//
-//        final StyleStyleDesc<CellStyle> cellDesc = sheet.getStyleStyleDesc(CellStyle.class);
-//        CellStyle autoStyle = cellDesc.createAutoStyle(sheet.getSpreadSheet().getPackage());
-//        autoStyle.getBackgroundColor(null);
-//        autoStyle.getTableCellProperties(cellAt).setAttributeValue("thin solid #000000" , "border" + "-" + Side.BOTTOM.name().toLowerCase());
-        //cellDesc.createCommonStyle(sheet.getODDocument().getPackage(), "asdsadfdsa2");
-//        cellDesc.create(sheet.getSpreadSheet().getPackage(),cellDesc.createDefaultElement());
-//        autoStyle.getTableCellProperties().getBorders();
-        //StyleDesc<CellStyle> styleDesc = cellAt.getStyleDesc();
-
-        //StyleStyle defaultStyle = styleDesc.getDefaultStyle(cellAt.getODDocument().getPackage(), true);
-//        final CellStyle defaultStyle = styleDesc.getDefaultStyle(sheet.getODDocument().getPackage(), true);
-//        sheet.getDefaultCellStyle().getTableCellProperties();
-//        cellAt.getTableCellProperties();
-//        cellAt.setStyleName(cellAt.getElement(), "myStyle");
+        //cellAt.setHorStyleWithBorder();
+        Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle("HOR_STYLE_WITH_BORDER", Style::setThinBorder);
+        horStyleWithBorder.setHorStyleWithBorder();
+        cellAt.setStyle(horStyleWithBorder);
         return cellAt;
     }//getCellStyleDesc().findDefaultStyle(this.getODDocument().getPackage());
 
 
     private Cell getVerBorderedCell(Sheet sheet, int column, int lastRowNumber) {
         Cell cellAt = sheet.getCellAt(column, lastRowNumber);
-        cellAt.setVertStyleWithBorder();
+
+        Style vertStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle("VERT_STYLE_WITH_BORDER", Style::setVertStyleWithBorder);
+        cellAt.setStyle(vertStyleWithBorder);
 
         return cellAt;
     }

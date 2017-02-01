@@ -1,8 +1,10 @@
 package dbk.adapter.odf;
 
 import dbk.adapter.Sheet;
+import dbk.adapter.Style;
 import dbk.adapter.Workbook;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,5 +38,11 @@ public class OdfWorkbook extends Workbook {
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    protected Style initStyle() {
+        //todo
+        throw new NotImplementedException();
     }
 }
