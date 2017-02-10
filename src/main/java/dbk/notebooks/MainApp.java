@@ -1,4 +1,4 @@
-package dbk;
+package dbk.notebooks;
 
 import dbk.abacus.Book;
 import dbk.abacus.Level;
