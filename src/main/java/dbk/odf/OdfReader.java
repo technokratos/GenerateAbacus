@@ -22,9 +22,9 @@ public class OdfReader {
     public static final int ATTEMPT_LIMIT = 10;
     private final String fileName;
     SpreadSheet sheet;
-    static int RED = -65536;
-    static int GREEN = -16732080;
-    public static int BLUE = -16748352;
+        static int RED = -65536;//0xFF0000
+    static int GREEN = -16732080;//0x00B050
+    public static int BLUE = -16748352;//0x0070C0
     ArrayList<Level> levels = new ArrayList<>();
 
     final int seriesCount = 10;
