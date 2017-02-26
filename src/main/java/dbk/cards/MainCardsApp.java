@@ -1,5 +1,12 @@
 package dbk.cards;
 
+import dbk.abacus.Tuple2;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +20,12 @@ import java.util.stream.Stream;
  */
 public class MainCardsApp {
 
-    static Random r = new Random();//1);
+    public static final Color BACKGROUND = Color.WHITE;
+    public static final Color LINE_COLORS = Color.BLACK;
+    public static final String CARDS_DIR = "Cards";
+    public static final int SEEK = 1;
+
+    static Random r = new Random(SEEK);;
     static int ALL_CARDS = 30;
     static int NUM_ON_CARD = 4;
 
@@ -27,6 +39,21 @@ public class MainCardsApp {
         IntStream.range(0, NUM_ON_CARD)
                 .forEach(i -> notFulledPositions[i] = new ArrayList<>(Arrays.asList(cards)));
     }
+
+    static BufferedImage oval = null;
+    static final int LINE_WIDTH = 20;
+    static {
+        try {
+            oval = ImageIO.read(new File("/home/denis/IdeaProjects/GenerateAbacus/src/main/resources/oval300x100.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static final int OVAL_WIDTH = oval.getWidth();
+    public static final int WIDTH_NUMBER = 3 * OVAL_WIDTH;
+    public static final int OVAL_HEIGHT = oval.getHeight();
+    public static final int HEIGHT_NUMBER = 7 * OVAL_HEIGHT;
 
     /**
      * 4 - 2
@@ -46,16 +73,125 @@ public class MainCardsApp {
 
         Stream.of(cards).forEach(System.out::println);
 
-        Stream.of(cards).collect(Collectors.groupingBy(c->c))
+
+
+
+        Stream.of(MainCardsApp.cards).collect(Collectors.groupingBy(c->c))
                 .entrySet().stream()
-                .filter(e-> e.getValue().size()>1)
+                .filter(e-> e.getValue().size() > 1)
                 .forEach(e-> System.out.println("Duplicated " + e.getKey() + " " + e.getValue().size()));
 
+
+        makeDir(CARDS_DIR, false);
+        String currentDir = CARDS_DIR + "/cards_" + ALL_CARDS + "_" + NUM_ON_CARD + "_seek_" + SEEK;
+        makeDir(currentDir, true );
+
+        List<Tuple2<BufferedImage, Card>> images = Stream.of(cards).map(c -> new Tuple2<>( drawCard(c,2), c)).collect(Collectors.toList());
+        IntStream.range(0, images.size()).forEach(i -> {
+            try {
+                ImageIO.write(images.get(i).getA(), "png", new File(currentDir+"/card" + i +"_" + images.get(i).getB()+ ".png"));
+                System.out.println("written image " + i);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         //List<Card> available = Arrays.asList(cards);
 
 
 
+    }
+
+    private static BufferedImage drawCard(Card c, int digits) {
+        List<BufferedImage> collect = IntStream.of(c.nums)
+                .mapToObj(num -> drawNum(num, digits))
+                .collect(Collectors.toList());
+        int cols = (int) Math.sqrt(NUM_ON_CARD);//4->2; 6->2; 9->3
+        int rows = NUM_ON_CARD/cols;
+
+        BufferedImage image = new BufferedImage(cols * WIDTH_NUMBER + (cols-1) * OVAL_WIDTH, rows * HEIGHT_NUMBER + (rows -1 )* OVAL_HEIGHT, BufferedImage.TYPE_3BYTE_BGR );
+        Graphics g = image.createGraphics();
+        IntStream.range(0, cols)
+                .forEach(x-> IntStream.range(0, rows)
+                    .forEach(y-> g.drawImage(collect.get(x + y * cols),
+                            x * (WIDTH_NUMBER+OVAL_WIDTH), y* (HEIGHT_NUMBER + OVAL_HEIGHT), null )));
+
+        return image;
+
+    }
+
+    private static BufferedImage drawNum(int num, int digits) {
+
+        BufferedImage image = new BufferedImage(WIDTH_NUMBER, HEIGHT_NUMBER, BufferedImage.TYPE_3BYTE_BGR );
+        //draw 3  vert lines
+        //draw hor line
+
+        Graphics g = image.getGraphics();
+        g.setColor(BACKGROUND);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        g.setColor(LINE_COLORS);
+        g.fill3DRect(0,     HEIGHT_NUMBER * 2 - LINE_WIDTH/2,
+                WIDTH_NUMBER, HEIGHT_NUMBER * 2 + LINE_WIDTH/2, true);
+
+        IntStream.range(0,3)
+                .forEach(i->g.fill3DRect(i * OVAL_WIDTH + OVAL_WIDTH /2 - LINE_WIDTH/4,0,
+                                        i * OVAL_WIDTH + OVAL_WIDTH /2 + LINE_WIDTH/4, HEIGHT_NUMBER, true));
+
+        //15
+        //d=0, ten = 10; value = 5;
+        //d=1, ten = 100, value = 15;
+        IntStream.range(1, digits + 1)
+                .forEach(d-> {
+                    int ten = 10^d;
+                    int value = (num%ten) ;
+                    if (d> 1) {
+                        value = value/(10^d-1);
+                    }
+                    drawNum(value, d, g);
+                });
+//        IntStream.of(c.nums).forEach(num->{
+//            IntStream.range(0, digits)
+//                    .forEach(i-> drawNum(num, i, g));
+//        });
+        return image;
+    }
+
+    private static void drawNum(int num, int pos, Graphics g) {
+        final int countOfUp;
+        int posx = pos * oval.getWidth();
+        int ovalH = OVAL_HEIGHT;
+        if (num >= 5) {
+            countOfUp = num - 5;
+            g.drawImage(oval, posx, 0, null);
+            //draw 5
+        } else{
+            g.drawImage(oval, posx, ovalH - LINE_WIDTH/2, null);
+            //draw not 5
+            countOfUp = num;
+        }
+
+        int height = 7* ovalH;
+        IntStream.range(0, 4)
+                .forEach(i-> {
+                    final int upPosition;
+                   if (i < countOfUp) {
+                       //draw in down
+                       upPosition = 0;
+                   } else {
+                       upPosition = ovalH - ((i==4)? LINE_WIDTH/4 :0);
+                       //draw in up
+                   }
+                    g.drawImage(oval, posx, ( height - i * ovalH - ovalH - upPosition ), null);
+                });
+    }
+
+    private static void makeDir(String header, boolean deleteAll) {
+        File mainDir = new File(header);
+        if (!mainDir.exists()) {
+            mainDir.mkdir();
+        } else if (deleteAll) {
+            Stream.of(mainDir.listFiles()).forEach(File::delete);
+        }
     }
 
 
@@ -106,6 +242,7 @@ public class MainCardsApp {
         }
 
     }
+
 
     private static void checkLimit(int iterationCount, int num) {
         if (iterationCount%10 ==0) {
