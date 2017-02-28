@@ -26,7 +26,7 @@ public class MainCardsApp {
     public static final int SEEK = 1;
 
     static Random r = new Random(SEEK);;
-    static int ALL_CARDS = 30;
+    static int ALL_CARDS = 50;
     static int NUM_ON_CARD = 4;
 
     static Card[] cards = new Card[ALL_CARDS];
@@ -86,10 +86,13 @@ public class MainCardsApp {
         String currentDir = CARDS_DIR + "/cards_" + ALL_CARDS + "_" + NUM_ON_CARD + "_seek_" + SEEK;
         makeDir(currentDir, true );
 
-        List<Tuple2<BufferedImage, Card>> images = Stream.of(cards).map(c -> new Tuple2<>( drawCard(c,2), c)).collect(Collectors.toList());
-        IntStream.range(0, images.size()).forEach(i -> {
+        int digits = (int) Math.ceil(Math.log10(NUM_ON_CARD * ALL_CARDS /2));
+        List<Tuple2<BufferedImage, Card>> cardImages = Stream.of(cards)
+                .map(c -> new Tuple2<>( drawCard(c,digits), c))
+                .collect(Collectors.toList());
+        IntStream.range(0, cardImages.size()).forEach(i -> {
             try {
-                ImageIO.write(images.get(i).getA(), "png", new File(currentDir+"/card" + i +"_" + images.get(i).getB()+ ".png"));
+                ImageIO.write(cardImages.get(i).getA(), "png", new File(currentDir+"/card" + i +"_" + cardImages.get(i).getB()+ ".png"));
                 System.out.println("written image " + i);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -103,85 +106,123 @@ public class MainCardsApp {
     }
 
     private static BufferedImage drawCard(Card c, int digits) {
-        List<BufferedImage> collect = IntStream.of(c.nums)
+        List<BufferedImage> numberImages = IntStream.of(c.nums)
                 .mapToObj(num -> drawNum(num, digits))
                 .collect(Collectors.toList());
         int cols = (int) Math.sqrt(NUM_ON_CARD);//4->2; 6->2; 9->3
         int rows = NUM_ON_CARD/cols;
 
-        BufferedImage image = new BufferedImage(cols * WIDTH_NUMBER + (cols-1) * OVAL_WIDTH, rows * HEIGHT_NUMBER + (rows -1 )* OVAL_HEIGHT, BufferedImage.TYPE_3BYTE_BGR );
-        Graphics g = image.createGraphics();
+
+        final int horSpace = OVAL_WIDTH;
+        final int vertSpace = 2 * OVAL_HEIGHT;
+
+        final BufferedImage first = numberImages.iterator().next();
+
+        int border = 20;
+//        final int width = cols * (digits * OVAL_WIDTH) + (cols - 1) * horSpace + 2 * border;
+//        final int height = rows * HEIGHT_NUMBER + (rows - 1) * vertSpace + 2 * border;
+        final int width = cols * (first.getWidth()) + (cols - 1) * horSpace + 2 * border;
+        final int height = rows * first.getHeight() + (rows - 1) * vertSpace + 2 * border;
+        final BufferedImage imageCard = new BufferedImage(width,
+                height, BufferedImage.TYPE_3BYTE_BGR );
+
+        final Graphics g = imageCard.createGraphics();
+
+
+
+
+        //g.fillRect(0, 0, imageCard.getWidth(), imageCard.getHeight() );
+        g.setColor(BACKGROUND);
+        //g.fillRect(border, border, imageCard.getWidth() - 2 * border, imageCard.getHeight() - 2 * border);
+        g.fillRect(0, 0, imageCard.getWidth(), imageCard.getHeight() );
+
+//        g.setColor(Color.BLUE);
+//        g.drawRect(1, 1, imageCard.getWidth() -1, imageCard.getHeight() -1);
+
         IntStream.range(0, cols)
                 .forEach(x-> IntStream.range(0, rows)
-                    .forEach(y-> g.drawImage(collect.get(x + y * cols),
-                            x * (WIDTH_NUMBER+OVAL_WIDTH), y* (HEIGHT_NUMBER + OVAL_HEIGHT), null )));
+                    .forEach(y-> g.drawImage(numberImages.get(x + y * cols),
+                            border + x * ((digits * OVAL_WIDTH) + horSpace), border + y* (HEIGHT_NUMBER + vertSpace), null )));
+        g.setColor(Color.LIGHT_GRAY);
+        IntStream.range(0, cols)
+                .forEach(x-> IntStream.range(0, rows)
+                        .forEach(y-> g.drawRect(border + x * ((digits * OVAL_WIDTH) + horSpace), border + y* (HEIGHT_NUMBER + vertSpace),
+                                first.getWidth(), first.getHeight() )));
 
-        return image;
+        return imageCard;
 
     }
 
     private static BufferedImage drawNum(int num, int digits) {
 
-        BufferedImage image = new BufferedImage(WIDTH_NUMBER, HEIGHT_NUMBER, BufferedImage.TYPE_3BYTE_BGR );
+        BufferedImage imageNum = new BufferedImage(digits * OVAL_WIDTH, HEIGHT_NUMBER, BufferedImage.TYPE_3BYTE_BGR );
         //draw 3  vert lines
         //draw hor line
 
-        Graphics g = image.getGraphics();
+        Graphics g = imageNum.getGraphics();
         g.setColor(BACKGROUND);
-        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        g.fillRect(0, 0, imageNum.getWidth(), imageNum.getHeight());
         g.setColor(LINE_COLORS);
-        g.fill3DRect(0,     HEIGHT_NUMBER * 2 - LINE_WIDTH/2,
-                WIDTH_NUMBER, HEIGHT_NUMBER * 2 + LINE_WIDTH/2, true);
 
-        IntStream.range(0,3)
-                .forEach(i->g.fill3DRect(i * OVAL_WIDTH + OVAL_WIDTH /2 - LINE_WIDTH/4,0,
-                                        i * OVAL_WIDTH + OVAL_WIDTH /2 + LINE_WIDTH/4, HEIGHT_NUMBER, true));
+        g.fill3DRect(0, OVAL_HEIGHT * 2 - LINE_WIDTH / 2,
+                WIDTH_NUMBER, LINE_WIDTH, true);
+
+        IntStream.range(0,digits)
+                .forEach(i -> {
+                    int startVertX = i * OVAL_WIDTH + OVAL_WIDTH / 2 - LINE_WIDTH / 4;
+                    int endVertX = i * OVAL_WIDTH + OVAL_WIDTH / 2 + LINE_WIDTH / 4;
+                    g.fill3DRect(startVertX, 0,
+                           LINE_WIDTH/2, HEIGHT_NUMBER, true);
+                });
 
         //15
         //d=0, ten = 10; value = 5;
         //d=1, ten = 100, value = 15;
-        IntStream.range(1, digits + 1)
+        IntStream.range(0, digits )
                 .forEach(d-> {
-                    int ten = 10^d;
+                    int ten = (int) Math.pow(10, d + 1);
                     int value = (num%ten) ;
-                    if (d> 1) {
-                        value = value/(10^d-1);
+                    if (d> 0) {
+                        value = value/((int)Math.pow(10,d));
                     }
-                    drawNum(value, d, g);
+                    final int pos = digits - d - 1;
+                    drawNum(value, pos, g);
                 });
-//        IntStream.of(c.nums).forEach(num->{
-//            IntStream.range(0, digits)
-//                    .forEach(i-> drawNum(num, i, g));
-//        });
-        return image;
+
+        return imageNum;
     }
 
     private static void drawNum(int num, int pos, Graphics g) {
         final int countOfUp;
         int posx = pos * oval.getWidth();
         int ovalH = OVAL_HEIGHT;
+        final int posy;
         if (num >= 5) {
             countOfUp = num - 5;
-            g.drawImage(oval, posx, 0, null);
-            //draw 5
+            posy = ovalH - LINE_WIDTH/2;            //draw 5
         } else{
-            g.drawImage(oval, posx, ovalH - LINE_WIDTH/2, null);
-            //draw not 5
+            posy = 0; //draw not 5
             countOfUp = num;
         }
+        g.drawImage(oval, posx, posy , null);
 
-        int height = 7* ovalH;
+        int height = 7 * ovalH;
+        int startX = 2 * OVAL_HEIGHT + LINE_WIDTH/2;
+        int oh = OVAL_HEIGHT;
+        int lh = LINE_WIDTH;
         IntStream.range(0, 4)
+                //.map(i-> 3 - i)
                 .forEach(i-> {
-                    final int upPosition;
-                   if (i < countOfUp) {
-                       //draw in down
-                       upPosition = 0;
-                   } else {
-                       upPosition = ovalH - ((i==4)? LINE_WIDTH/4 :0);
-                       //draw in up
-                   }
-                    g.drawImage(oval, posx, ( height - i * ovalH - ovalH - upPosition ), null);
+                    final int ypos;
+                    if (i < countOfUp) {
+                        ypos = height - (4 - i) * oh - (oh - lh/2);
+                    } else {
+                        ypos = height - (4 - i) * oh ;
+
+                    }
+                    g.drawImage(oval, posx, ypos, null);
+  //                 int posOnesX = i * ovalH + ovalH + upPosition;
+//                    g.drawImage(oval, posx, ( height -  posOnesX), null);
                 });
     }
 
@@ -289,8 +330,7 @@ public class MainCardsApp {
 
         @Override
         public String toString() {
-            return "Card{" + Arrays.toString(nums) +
-                    '}';
+            return Arrays.toString(nums);
         }
 
         public boolean isFilled() {
