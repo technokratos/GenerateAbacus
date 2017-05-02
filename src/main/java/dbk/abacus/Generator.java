@@ -1,6 +1,6 @@
 package dbk.abacus;
 
-import dbk.rand.Rand;
+import dbk.rand.RandomLevel;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -18,7 +18,7 @@ public class Generator {
     final Random r = getRandom();
 
     public static Random getRandom() {
-        return Rand.getR();
+        return RandomLevel.getR();
     }
 
     public Generator(int size, int limit) {

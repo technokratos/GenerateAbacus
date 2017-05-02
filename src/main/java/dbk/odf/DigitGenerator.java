@@ -2,7 +2,7 @@ package dbk.odf;
 
 import dbk.abacus.Level;
 import dbk.abacus.Tuple2;
-import dbk.rand.Rand;
+import dbk.rand.RandomLevel;
 
 import java.util.*;
 
@@ -10,7 +10,7 @@ import java.util.*;
  * Created by dbk on 30.08.2016.
  */
 public class DigitGenerator {
-    private Random r = Rand.getR();
+    private Random r = RandomLevel.getR();
 
     public static final int ATTEMPT_LIMIT = 10;
     private final List<Level> levels;

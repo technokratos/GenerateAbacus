@@ -1,7 +1,7 @@
 package dbk.abacus;
 
 import dbk.odf.Settings;
-import dbk.rand.Rand;
+import dbk.rand.RandomLevel;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ public class Level {
 
     final TreeMap<Integer,List<Integer>> blockedMap = new TreeMap<>();
 
-    Random r= Rand.getR();
+    Random r= RandomLevel.getR();
 
     List<Double> probability = new ArrayList<>();
 

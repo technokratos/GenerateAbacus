@@ -2,7 +2,7 @@ package dbk.odf;
 
 import dbk.abacus.Level;
 import dbk.abacus.Tuple2;
-import dbk.rand.Rand;
+import dbk.rand.RandomLevel;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import static dbk.odf.Digs.possiblePositiveCarry;
  */
 public class SecondGenerator {
 
-    private Random r = Rand.getR();
+    private Random r = RandomLevel.getR();
 
     public static final int ATTEMPT_LIMIT = 10;
     private final List<Level> levels;

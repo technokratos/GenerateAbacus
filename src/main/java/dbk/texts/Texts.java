@@ -45,10 +45,14 @@ public enum Texts {
 
     static HashMap<String, String> map = new HashMap<>();
 
+    public static final String TEXTS_ODS = "texts.ods";
+
     static {
 
         try {
-            File f = new File("texts.ods");
+            ClassLoader classLoader = Texts.class.getClassLoader();
+            File f = new File(classLoader.getResource(TEXTS_ODS).getFile());
+
             SpreadSheet document = SpreadSheet.createFromFile(f);
             Sheet sheet = document.getSheet(0);
 
