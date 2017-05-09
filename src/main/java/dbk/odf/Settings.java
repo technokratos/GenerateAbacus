@@ -1,5 +1,7 @@
 package dbk.odf;
 
+import java.util.TreeSet;
+
 /**
  * series
  * steps
@@ -35,6 +37,9 @@ public class Settings {
      */
     private int extensionCount;
     private boolean addSum = false;
+
+    private TreeSet<String> formula = new TreeSet<>();
+    private TreeSet<String> required = new TreeSet<>();
 
     public int getSeries() {
         return series;
@@ -112,6 +117,12 @@ public class Settings {
                 case "addSum":
                     this.addSum = Boolean.valueOf(value);
                     break;
+                case "formula":
+                    this.formula.add(value);
+                    break;
+                case "required":
+                    this.required.add(value);
+                    break;
             }
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
@@ -168,6 +179,14 @@ public class Settings {
 
     public void setDescription2(String description2) {
         this.description2 = description2;
+    }
+
+    public TreeSet<String> getFormula() {
+        return formula;
+    }
+
+    public TreeSet<String> getRequired() {
+        return required;
     }
 
     @Override

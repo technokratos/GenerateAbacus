@@ -11,7 +11,7 @@ import static dbk.formula.AbacusNumber.abacus;
 /**
  * Created by denis on 28.04.17.
  */
-public class FormulaTableTest {
+public class FormulaTest {
     @Test
     public void getFormulaTable() throws Exception {
 
@@ -26,6 +26,8 @@ public class FormulaTableTest {
 //                formulaTable2[i][j] = table[j][i];
 //            }
 //        }
+
+        formulaTable.getFormulas().stream().forEach(System.out::println);
 
         final String collect = Stream.of(table)
                 .map(row -> Stream.of(row)
