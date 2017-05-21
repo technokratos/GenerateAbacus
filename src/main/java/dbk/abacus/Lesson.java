@@ -11,22 +11,34 @@ import java.util.*;
 public class Lesson {
     String title;
     private final List<Settings> settings;
+    Marker marker = new FormulaMarker();
+
+
+
     //todo generator should be use length of list to generate chance
     final TreeMap<Integer,List<Integer>> availableMap = new TreeMap<>();
     final TreeMap<Integer, List<Integer>> positiveMap = new TreeMap<>();
     final TreeMap<Integer, List<Integer>> negativeMap = new TreeMap<>();
     final TreeMap<Integer,List<Integer>> obligatoryMap = new TreeMap<>();
-
     final HashMap<Integer, List<Tuple2<Integer, Integer>>> resultMap = new HashMap<>();
-
     final TreeMap<Integer,List<Integer>> blockedMap = new TreeMap<>();
-
-    Random r= RandomLevel.getR();
-
     List<Double> probability = new ArrayList<>();
 
-    Marker marker = new FormulaMarker();
+    Random r = RandomLevel.getR();
 
+
+    public Lesson(Lesson orig, String index) {
+        this(orig.getTitle() + index, orig.settings);
+        availableMap.putAll(orig.availableMap);
+        positiveMap.putAll(orig.positiveMap);
+        negativeMap.putAll(orig.negativeMap);
+        obligatoryMap.putAll(orig.obligatoryMap);
+        resultMap.putAll(orig.resultMap);
+        blockedMap.putAll(orig.blockedMap);
+        probability.addAll(orig.probability);
+
+
+    }
 
     public Lesson(String name, List<Settings> settings) {
         this.title = name;

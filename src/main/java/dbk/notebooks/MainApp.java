@@ -29,7 +29,7 @@ public class MainApp {
         //ExerciseWriter exerciseWriter = new ExerciseWriter(generator.generate(false), "abacus_out.ods");
 
         List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data,"abacus_out", book);
+        ExerciseWriter exerciseWriter = new ExerciseWriter(data,"abacus_out", book, MainFormulaApp.PAGE_ORIENTATION.LANDSCAPE);
         //todo generate report with count of used pairs
         exerciseWriter.write();
         //MarkerWriter markerWriter = new MarkerWriter(data);

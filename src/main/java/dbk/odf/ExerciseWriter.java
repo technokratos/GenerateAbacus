@@ -3,6 +3,7 @@ import dbk.abacus.Book;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.adapter.*;
+import dbk.notebooks.MainFormulaApp;
 import dbk.texts.Texts;
 
 import java.io.IOException;
@@ -20,22 +21,39 @@ public class ExerciseWriter {
      */
     public static final int ADDITIONAL_ROWS = 6;
 
+
+
     public static final short MAIN_TEXT_SIZE = 13;
     public static final short HOR_HEADER_FONT_SIZE = 20;
     public static final short VER_HEADER_FONT_SIZE = 12;
     private static final int FIRST_COLUMN = 0;
-    public static final int THIRD_TITLE_COLUMN = 8;
-    public static final int PAGE_NUMBER_COLUMN = THIRD_TITLE_COLUMN + 2;
+    public static final int LANDSCAPE_THIRD_TITLE_COLUMN = 8;
+    public static final int PORTRAIN_THIRD_TITLE_COLUMN = 5;
+    public final int thirdTitleColumn;
+    public final int pageNumberColumn;
     public static final int SECOND_TITLE_COLUMN = 3;
-    public static final int ROW_ON_PAGE = 23;
+    public static final int LANDSCAPE_ROW_ON_PAGE = 23;
     private final List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises;
     private final String fileName;
     private final Book book;
+    private final MainFormulaApp.PAGE_ORIENTATION page;
+    public final int rowOnPage;
+    private final boolean isPortrait;
+    private int startNewPage;
+    private int groupOnPage;
 
-    public ExerciseWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises, String fileName, Book book) {
+    public ExerciseWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises, String fileName, Book book, MainFormulaApp.PAGE_ORIENTATION page) {
         this.exercises = exercises;
         this.book = book;
         this.fileName = fileName + ".xls";
+        this.page = page;
+        isPortrait = page == MainFormulaApp.PAGE_ORIENTATION.PORTRAIT;
+        rowOnPage = !isPortrait ? LANDSCAPE_ROW_ON_PAGE: 30;
+        startNewPage = !isPortrait ? 15: 20;;
+
+        thirdTitleColumn = !isPortrait ? LANDSCAPE_THIRD_TITLE_COLUMN: PORTRAIN_THIRD_TITLE_COLUMN;
+        pageNumberColumn = thirdTitleColumn + 2;
+        groupOnPage = !isPortrait ? 4: 7;
     }
 
     public void write() {
@@ -43,8 +61,8 @@ public class ExerciseWriter {
         Workbook workbook = WorkbookFactory.getWorkbook(WorkbookFactory.Library.POI, fileName);
 
         int pageNumber = 1;
-        //pageNumber = addPageWithName(workbook, pageNumber);
-        //pageNumber = addPageWithSchedule(workbook, pageNumber, book);
+        pageNumber = addPageWithName(workbook, pageNumber);
+        pageNumber = addPageWithSchedule(workbook, pageNumber, book);
         int lastRowNumber = 0;
 
         Sheet sheet = null;
@@ -55,16 +73,21 @@ public class ExerciseWriter {
             final int rowCount;
             //?????????? ??? ?????? ??????? ?? ????? ????????
             //????
-            if (lastRowNumber > 15 || sheet == null) {
+
+            if (lastRowNumber > startNewPage || sheet == null) {
                 System.out.println("Start new sheet " + lesson.getTitle());
                 sheet = workbook.addSheet(lesson.getTitle());
                 lastRowNumber = 0;
                 //add odd page
-                if (pageNumber % 2 == 0) {
-                    pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
-                    addedPageNumber = true;
+                if (!isPortrait) {
+                    if (pageNumber % 2 == 0) {
+                        pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
+                        addedPageNumber = true;
+                    } else {
+                        addedPageNumber = false;
+                    }
                 } else {
-                    addedPageNumber = false;
+                    pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
                 }
 
             } else {
@@ -81,7 +104,6 @@ public class ExerciseWriter {
                 List<List<Integer>> series = exercise.getB().get(groupSeriesIndex);
                 Settings settings = lesson.getSettings().get(groupSeriesIndex);
                 System.out.println("  Start new settings groupSeriesIndex " + groupSeriesIndex +  " lastRowNumber " + lastRowNumber );
-                //???????? ???????? ???? ?? ??????
                 System.out.println("  Try print description  " + settings.description + " "  + settings.description1  + " " + settings.description2 +  " lastRowNumber " + lastRowNumber );
                 lastRowNumber = setDescription(sheet, lastRowNumber, settings);
 
@@ -104,11 +126,13 @@ public class ExerciseWriter {
 
                 //todo check -1 for addSum;
                 int rowToMerge = series.get(0).size() - 1 + (settings.getAddSum()? -1:0);
-                sheet.merge(FIRST_COLUMN, startMergeRow, 0, rowToMerge);
-                System.out.println("  Merge startMergeRow " +  startMergeRow + " rowToMerge " + rowToMerge + " lastRowNumber " + lastRowNumber );
+
+//                sheet.merge(FIRST_COLUMN, startMergeRow, 0, rowToMerge);
+//                System.out.println("  Merge startMergeRow " +  startMergeRow + " rowToMerge " + rowToMerge + " lastRowNumber " + lastRowNumber );
                 //set border style for merged cells
-                Cell seriesHeader = getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow);
-                seriesHeader.setValue(Integer.toString(groupSeriesIndex + 1));
+                getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow ).setValue(Integer.toString(groupSeriesIndex + 1));
+                getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow + 1).setValue("__мин.");
+                getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow + 2).setValue("__сек.");
                 //don't work
                 //todo check 1 for
 
@@ -123,7 +147,7 @@ public class ExerciseWriter {
                         lastRowNumber++;
                         System.out.println("    First step in iterate series steps size " + steps.size() + " lastRowNumber " + lastRowNumber );
                         for (int stepIndex = 0; stepIndex < steps.size(); stepIndex++) {
-                            Cell cellAt = getBorderedCell(sheet, FIRST_COLUMN, stepIndex + lastRowNumber);
+                            Cell cellAt = getVerBorderedCell(sheet, FIRST_COLUMN, stepIndex + lastRowNumber);
                            // cellAt.setValue(Integer.toString(stepIndex + 1));
                         }
                     }
@@ -132,6 +156,7 @@ public class ExerciseWriter {
                         Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
                         cellAt.setValue(value);
 
+                        //add sum cell
                         if (stepIndex == steps.size() - 1 && settings.getAddSum()  ) {
                             Style thinBorder = cellAt.getSheet().getWorkbook().getStyle("THIN_BORDER", Style::setThinBorder);
                             thinBorder.setThinBorder();
@@ -168,28 +193,41 @@ public class ExerciseWriter {
                 System.out.println("  The end of series " + " lastRowNumber " + lastRowNumber );
                 //add page break
                 //do not add last page break and description
-                if (groupSeriesIndex % 4 == 3 && groupSeriesIndex < exercise.getB().size() - 1) {
+                //todo worked code because false
+                if (groupSeriesIndex % groupOnPage == groupOnPage - 1 && groupSeriesIndex < exercise.getB().size() - 1) {
                     System.out.println("  Add pagebreak " + " lastRowNumber " + lastRowNumber );
 
-                    if (pageNumber % 2 == 1 && !addedPageNumber) {
-                        lastRowNumber++;
-                        pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
-                        sheet.addPageBreak(lastRowNumber++);
-                        pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
-                        addedPageNumber = true;
+                    if (!isPortrait) {
+                        if (pageNumber % 2 == 1 && !addedPageNumber) {
+                            lastRowNumber++;
+                            pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
+                            sheet.addPageBreak(lastRowNumber++);
+                            pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
+                            addedPageNumber = true;
+                        } else {
+                            sheet.addPageBreak(lastRowNumber++);
+                            addedPageNumber = false;
+                        }
                     } else {
-                        sheet.addPageBreak(lastRowNumber++);
-                        addedPageNumber = false;
+
                     }
 
                 }
+
                 //lastRowNumber = setDescription(sheet, lastRowNumber, settings);
             }
             //for sheet without page breaks
-            if (! addedPageNumber && pageNumber % 2 == 1 && lastRowNumber >= ROW_ON_PAGE) {
+            if (!isPortrait) {
+                if (!addedPageNumber && pageNumber % 2 == 1 && lastRowNumber >= rowOnPage) {
+                    lastRowNumber++;
+                    pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
+                }
+            } else {
+                getBorderedCell(sheet, FIRST_COLUMN, lastRowNumber).setValue("____мин.");
+                getBorderedCell(sheet, FIRST_COLUMN+1, lastRowNumber).setValue("____сек.");
                 lastRowNumber++;
-                pageNumber = addPageNumber(sheet, lastRowNumber, pageNumber);
             }
+
         }
         try {
             workbook.saveAs();
@@ -200,9 +238,9 @@ public class ExerciseWriter {
 
     private int addPageWithSchedule(Workbook workbook, int pageNumber, Book book) {
         Sheet sheet = workbook.addSheet("Schedule");
-        sheet.setRowCount(ROW_ON_PAGE);
+        sheet.setRowCount(rowOnPage);
 
-//        for (int i = 0; i < ROW_ON_PAGE; i++) {
+//        for (int i = 0; i < rowOnPage; i++) {
 //            sheet.setRowHeight(i, 30 );
 //        }
 
@@ -257,18 +295,18 @@ public class ExerciseWriter {
 
     private int addPageWithName(Workbook workbook, int pageNumber) {
         Sheet sheet = workbook.addSheet("Name");
-        sheet.setRowCount(ROW_ON_PAGE);
-        int nameColumn = 3;
+        sheet.setRowCount(rowOnPage);
+        int nameColumn = (isPortrait)? 2: 3;
         sheet.setColumnCount(nameColumn);
-        sheet.getCellAt(nameColumn, 2).setValue(STUDENT_NAME.getText());
-        sheet.getCellAt(nameColumn, 4).setValue(INSTRUCTOR_NAME.getText());
-        sheet.getCellAt(nameColumn, 6).setValue(CONTACTS.getText());
+        sheet.getCellAt(nameColumn, (isPortrait)? 3:2).setValue(STUDENT_NAME.getText());
+        sheet.getCellAt(nameColumn, (isPortrait)? 5:4).setValue(INSTRUCTOR_NAME.getText());
+        sheet.getCellAt(nameColumn, (isPortrait)? 7:6).setValue(CONTACTS.getText());
         return pageNumber + 1;
     }
 
     private int addPageNumber(Sheet sheet, int lastRowNumber, int pageNumber) {
         System.out.println("Add page number " + sheet.getTitle() + " row " + lastRowNumber + " pageNumber " + pageNumber);
-        Cell cellAt2 = sheet.getCellAt(PAGE_NUMBER_COLUMN, lastRowNumber);
+        Cell cellAt2 = sheet.getCellAt(pageNumberColumn, lastRowNumber);
         cellAt2.setValue(pageNumber);
         return ++pageNumber;
     }
@@ -280,7 +318,7 @@ public class ExerciseWriter {
         for (int i = 0; i < columnCount; i++) {
 
             if (i == 0) {
-                sheet.setColumnSize(FIRST_COLUMN + i, size + 1800);
+                sheet.setColumnSize(FIRST_COLUMN + i, size + 600);
             } else {
                 sheet.setColumnSize(FIRST_COLUMN + i, size);
             }
@@ -298,11 +336,9 @@ public class ExerciseWriter {
             //getBorderedCell(sheet, 0, lastRowNumber).setValue(settings.description);
 
             Cell cellAt = sheet.getCellAt(FIRST_COLUMN, lastRowNumber);
-            cellAt.setValue(settings.description);
+            cellAt.setValue(settings.description + " " + settings.description1);
 
-            Cell cellAt1 = sheet.getCellAt(FIRST_COLUMN + SECOND_TITLE_COLUMN, lastRowNumber);
-            cellAt1.setValue(settings.description1);
-            Cell cellAt2 = sheet.getCellAt(FIRST_COLUMN + THIRD_TITLE_COLUMN, lastRowNumber);
+            Cell cellAt2 = sheet.getCellAt(FIRST_COLUMN + thirdTitleColumn, lastRowNumber);
             cellAt2.setValue(settings.description2);
             lastRowNumber++;
         }

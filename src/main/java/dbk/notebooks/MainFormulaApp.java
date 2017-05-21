@@ -7,6 +7,7 @@ import dbk.excel.SheetMarkerWriter;
 import dbk.odf.ExerciseWriter;
 import dbk.odf.OdfFormulaReader;
 import dbk.odf.SecondGenerator;
+import dbk.odf.Settings;
 import dbk.rand.RandomLevel;
 
 import java.util.ArrayList;
@@ -19,43 +20,54 @@ public class MainFormulaApp {
 
     public static final PAGE_ORIENTATION PAGE = PAGE_ORIENTATION.PORTRAIT;
     public static final String dir = "exercises/level3/";
-    public static final String outMarker = dir + "abacus_marker.xls";
-    public static final boolean ADD_SUM = true;
-    public static final int SEEK = 3;
     public static final String TASKS_DIR = "tasks/level3/";
-    public static final String TASK_NAME = "abacus_formula_even";
-    public static final String outfile = dir + TASK_NAME;
+    public static final boolean ADD_SUM = true;
+    public static final int SEEK = 4;
+    public static final String TASK_NAME = "abacus_formula_odd";
+    public static final String outfile = dir + TASK_NAME + "." + SEEK;
+    public static final String outMarker = dir + TASK_NAME+ "." + SEEK + ".marker.xls";
     public static final int LANDSCAPE_SERIES = 10;
     public static final int PORTRAIT_SERIES = 7;
+    public static final int LANDSCAPE_TASKS_ON_PAGE = 4;
+    public static final int PORTRAINT_TASKS_ON_PAGE = 6;
 
     public static void main(String[] args){
-        RandomLevel.setR(SEEK);
+
         String fileName = TASKS_DIR + TASK_NAME + ".ods";
         OdfFormulaReader reader = new OdfFormulaReader(fileName);
-        ArrayList<Lesson> lessons = reader.read();
+        List<Lesson> lessons = reader.read();
+
 
 
         initOrientation(PAGE, lessons);
-
-        generateHomeWork(lessons);
-
-
+        lessons=generateHomeWork(lessons);
         Book book = reader.getBook();
-//        generate(lessons, false, book);
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generateAndWrite(lessons, true, book, PAGE);
 
-        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generate(lessons, true, book);
-
+        //List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generateAndWrite(lessons, false, book, PAGE);
 
         SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
         markerWriter.write(outMarker);
         System.out.println("already read");
     }
 
-    private static void generateHomeWork(ArrayList<Lesson> lessons) {
-
+    private static void addSum(boolean addSum, List<Lesson> lessons) {
+        lessons.forEach(l-> l.getSettings().forEach(settings -> settings.setAddSum(addSum)));
     }
 
-    private static void initOrientation(PAGE_ORIENTATION page, ArrayList<Lesson> lessons) {
+
+    private static List<Lesson> generateHomeWork(List<Lesson> lessons) {
+        List<Lesson> lessonsHomeWorks = new ArrayList<>();
+        lessons.forEach( l-> {
+            lessonsHomeWorks.add(l);
+            for (int i = 1; i <=6; i++) {
+                lessonsHomeWorks.add(new Lesson(l, "_ДЗ_" + i));
+            }
+        });
+        return lessonsHomeWorks;
+    }
+
+    private static void initOrientation(PAGE_ORIENTATION page, List<Lesson> lessons) {
         if (page == PAGE_ORIENTATION.PORTRAIT) {
             lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(PORTRAIT_SERIES)));
         } else {
@@ -63,7 +75,8 @@ public class MainFormulaApp {
         }
     }
 
-    private static List<Tuple2<Lesson, List<List<List<Integer>>>>> generate(ArrayList<Lesson> lessons, boolean addSum, Book book) {
+    private static List<Tuple2<Lesson, List<List<List<Integer>>>>> generateAndWrite(List<Lesson> lessons, boolean addSum, Book book, PAGE_ORIENTATION page) {
+        RandomLevel.setR(SEEK);
         lessons.forEach(level -> level.getSettings().forEach(s -> {
             s.setAddSum(addSum);
         }));
@@ -71,12 +84,12 @@ public class MainFormulaApp {
         List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
 
 
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile + "_" + SEEK  + (addSum? "_answered":""), book);
+        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile +  (addSum? "_answered":""), book, page);
         exerciseWriter.write();
         return data;
     }
 
-    private enum PAGE_ORIENTATION {
+    public enum PAGE_ORIENTATION {
         LANDSCAPE,
         PORTRAIT;
     }
