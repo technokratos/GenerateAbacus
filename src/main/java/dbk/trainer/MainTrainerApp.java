@@ -1,10 +1,8 @@
 package dbk.trainer;
 
 import dbk.abacus.Book;
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
-import dbk.excel.SheetMarkerWriter;
-import dbk.odf.ExerciseWriter;
 import dbk.odf.OdfReader;
 import dbk.odf.SecondGenerator;
 
@@ -21,12 +19,12 @@ public class MainTrainerApp {
 
         String fileName = "tasks/level2/abacus.ods";
         OdfReader reader = new OdfReader(fileName);
-        ArrayList<Level> levels = reader.read();
+        ArrayList<Lesson> lessons = reader.read();
         Book book = reader.getBook();
-        levels.forEach( level -> level.getSettings().forEach(s-> s.setAddSum(false)));
-        SecondGenerator generator = new SecondGenerator(levels);
+        lessons.forEach(level -> level.getSettings().forEach(s-> s.setAddSum(false)));
+        SecondGenerator generator = new SecondGenerator(lessons);
 
-        List<Tuple2<Level, List<List<List<Integer>>>>> data = generator.generate();
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
 
         TrainerWriter trainerWriter = new TrainerWriter(data, "trainer level 2");
         trainerWriter.write();

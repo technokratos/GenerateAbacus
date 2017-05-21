@@ -13,7 +13,7 @@ public class ExcelGenerator {
 //
 //    //static Color DEFAULT = new HSSFColor.AUTOMATIC();
 //    static short DEFAULT = 21;
-//    List<Level> levels = new ArrayList<>();
+//    List<Lesson> levels = new ArrayList<>();
 //
 //    public ExcelGenerator(String fileName) {
 //        HSSFWorkbook workbook = null;
@@ -28,14 +28,14 @@ public class ExcelGenerator {
 //
 //    public void read(){
 //        for (Sheet sheet : workbook) {
-//            final Level level = new Level();
+//            final Lesson level = new Lesson();
 //            level.setTitle(sheet.getSheetName());
 //            levels.add(level);
 //            readRows(level, sheet);
 //        }
 //    }
 //
-//    private void readRows(Level level, Sheet sheet) {
+//    private void readRows(Lesson level, Sheet sheet) {
 //
 //        Row firstRow = sheet.getRow(0);
 //        for(Row row: sheet){

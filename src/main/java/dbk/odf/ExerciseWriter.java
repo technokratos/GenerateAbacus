@@ -1,6 +1,6 @@
 package dbk.odf;
 import dbk.abacus.Book;
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.adapter.*;
 import dbk.texts.Texts;
@@ -28,11 +28,11 @@ public class ExerciseWriter {
     public static final int PAGE_NUMBER_COLUMN = THIRD_TITLE_COLUMN + 2;
     public static final int SECOND_TITLE_COLUMN = 3;
     public static final int ROW_ON_PAGE = 23;
-    private final List<Tuple2<Level, List<List<List<Integer>>>>> exercises;
+    private final List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises;
     private final String fileName;
     private final Book book;
 
-    public ExerciseWriter(List<Tuple2<Level, List<List<List<Integer>>>>> exercises, String fileName, Book book) {
+    public ExerciseWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises, String fileName, Book book) {
         this.exercises = exercises;
         this.book = book;
         this.fileName = fileName + ".xls";
@@ -49,15 +49,15 @@ public class ExerciseWriter {
 
         Sheet sheet = null;
         boolean addedPageNumber = false;
-        for (Tuple2<Level, List<List<List<Integer>>>> exercise: exercises) {
+        for (Tuple2<Lesson, List<List<List<Integer>>>> exercise: exercises) {
 
-            Level level = exercise.getA();
+            Lesson lesson = exercise.getA();
             final int rowCount;
             //?????????? ??? ?????? ??????? ?? ????? ????????
             //????
             if (lastRowNumber > 15 || sheet == null) {
-                System.out.println("Start new sheet " + level.getTitle());
-                sheet = workbook.addSheet(level.getTitle());
+                System.out.println("Start new sheet " + lesson.getTitle());
+                sheet = workbook.addSheet(lesson.getTitle());
                 lastRowNumber = 0;
                 //add odd page
                 if (pageNumber % 2 == 0) {
@@ -69,17 +69,17 @@ public class ExerciseWriter {
 
             } else {
 
-                System.out.println("Continue sheet " + " lastRowNumber " + lastRowNumber + ", new level " + level.getTitle());
+                System.out.println("Continue sheet " + " lastRowNumber " + lastRowNumber + ", new lesson " + lesson.getTitle());
             }
-            rowCount = lastRowNumber + countRows(level.getSettings()) + 1;//1 for title
+            rowCount = lastRowNumber + countRows(lesson.getSettings()) + 1;//1 for title
             System.out.println(" Defined row count " + rowCount + " lastRowNumber " + lastRowNumber );
             sheet.setRowCount(rowCount);
 
 
-            setupColumns(sheet, level);
+            setupColumns(sheet, lesson);
             for (int groupSeriesIndex = 0; groupSeriesIndex < exercise.getB().size(); groupSeriesIndex++) {
                 List<List<Integer>> series = exercise.getB().get(groupSeriesIndex);
-                Settings settings = level.getSettings().get(groupSeriesIndex);
+                Settings settings = lesson.getSettings().get(groupSeriesIndex);
                 System.out.println("  Start new settings groupSeriesIndex " + groupSeriesIndex +  " lastRowNumber " + lastRowNumber );
                 //???????? ???????? ???? ?? ??????
                 System.out.println("  Try print description  " + settings.description + " "  + settings.description1  + " " + settings.description2 +  " lastRowNumber " + lastRowNumber );
@@ -273,8 +273,8 @@ public class ExerciseWriter {
         return ++pageNumber;
     }
 
-    private void setupColumns(Sheet sheet, Level level) {
-        int columnCount = countColumns(level.getSettings());
+    private void setupColumns(Sheet sheet, Lesson lesson) {
+        int columnCount = countColumns(lesson.getSettings());
         sheet.setColumnCount(FIRST_COLUMN + columnCount);
         int size = 2700;
         for (int i = 0; i < columnCount; i++) {

@@ -1,7 +1,7 @@
 package dbk.notebooks;
 
 import dbk.abacus.Book;
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.excel.SheetMarkerWriter;
 import dbk.odf.*;
@@ -22,13 +22,13 @@ public class MainApp {
         //String fileName = "abacusLevel9_1.ods";
         //String fileName = "abacusWithoutObligatory.ods";
         OdfReader reader = new OdfReader(fileName);
-        ArrayList<Level> levels = reader.read();
+        ArrayList<Lesson> lessons = reader.read();
         Book book = reader.getBook();
-        levels.forEach( level -> level.getSettings().forEach(s-> s.setAddSum(true)));
-        SecondGenerator generator = new SecondGenerator(levels);
+        lessons.forEach(level -> level.getSettings().forEach(s-> s.setAddSum(true)));
+        SecondGenerator generator = new SecondGenerator(lessons);
         //ExerciseWriter exerciseWriter = new ExerciseWriter(generator.generate(false), "abacus_out.ods");
 
-        List<Tuple2<Level, List<List<List<Integer>>>>> data = generator.generate();
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
         ExerciseWriter exerciseWriter = new ExerciseWriter(data,"abacus_out", book);
         //todo generate report with count of used pairs
         exerciseWriter.write();

@@ -5,8 +5,9 @@ package dbk.abacus;
  */
 public class Count {
     int value = 0;
-    public int inc() {
-        return ++value;
+    public Count inc() {
+        value++;
+        return this;
     }
 
     @Override

@@ -1,26 +1,23 @@
 package dbk.trainer;
 
-import dbk.abacus.Count;
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import org.jopendocument.util.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.stream.Stream;
 
 /**
  * Created by denis on 09.02.17.
  */
 public class TrainerWriter {
-    private final List<Tuple2<Level, List<List<List<Integer>>>>> result;
+    private final List<Tuple2<Lesson, List<List<List<Integer>>>>> result;
     private final String mainDirName;
 
-    public TrainerWriter(List<Tuple2<Level, List<List<List<Integer>>>>> data, String mainDirName) {
+    public TrainerWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> data, String mainDirName) {
         this.result = data;
         this.mainDirName = mainDirName;
     }
@@ -28,9 +25,9 @@ public class TrainerWriter {
     public void write() throws IOException {
         makeDir(mainDirName);
 
-        for (Tuple2<Level, List<List<List<Integer>>>> levelData: result){
-            Level level = levelData.getA();
-            String levelDir = mainDirName + "/" + level.getTitle();
+        for (Tuple2<Lesson, List<List<List<Integer>>>> levelData: result){
+            Lesson lesson = levelData.getA();
+            String levelDir = mainDirName + "/" + lesson.getTitle();
             makeDir(levelDir);
             copyTrainerTo(levelDir);
             List<List<List<Integer>>> mainList = levelData.getB();

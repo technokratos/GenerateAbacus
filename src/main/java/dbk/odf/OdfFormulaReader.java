@@ -2,8 +2,7 @@ package dbk.odf;
 
 
 import dbk.abacus.Book;
-import dbk.abacus.Level;
-import dbk.abacus.Tuple2;
+import dbk.abacus.Lesson;
 import dbk.formula.Formulas;
 import org.jopendocument.dom.spreadsheet.MutableCell;
 import org.jopendocument.dom.spreadsheet.Sheet;
@@ -26,7 +25,7 @@ public class OdfFormulaReader {
     static int RED = -65536;//0xFF0000
     static int GREEN = -16732080;//0x00B050
     public static int BLUE = -16748352;//0x0070C0
-    ArrayList<Level> levels = new ArrayList<>();
+    ArrayList<Lesson> lessons = new ArrayList<>();
 
     final int seriesCount = 10;
     final int stepsCount = 3;
@@ -45,7 +44,7 @@ public class OdfFormulaReader {
 
     }
 
-    public ArrayList<Level> read() {
+    public ArrayList<Lesson> read() {
         for (int i = 0; i < sheet.getSheetCount(); i++) {
             Sheet sheet = this.sheet.getSheet(i);
             if (i == 0 && sheet.getName() != null && sheet.getName().contains("empty")) {
@@ -55,23 +54,23 @@ public class OdfFormulaReader {
 
 
             System.out.println(sheet.getName());
-            Level level = readSheetWithSettings(sheet);
+            Lesson lesson = readSheetWithSettings(sheet);
 
-            levels.add(level);
+            lessons.add(lesson);
 
-            final TreeSet<String> formulas = level.getSettings().iterator().next().getFormula();
+            final TreeSet<String> formulas = lesson.getSettings().iterator().next().getFormula();
             final Formulas formula = Formulas.getInstance();
 
             formulas.stream()
                     .flatMap(s -> formula.getOperandsForFormula(s).stream())
                     .forEach(t -> {
-                        level.put(t.getA(), t.getB());
+                        lesson.put(t.getA(), t.getB());
                     });
 
-            level.getSettings().iterator().next().getRequired()
+            lesson.getSettings().iterator().next().getRequired()
                     .stream()
                     .flatMap(s -> formula.getOperandsForFormula(s).stream())
-                    .forEach(t -> level.put(t.getA(), t.getB()));
+                    .forEach(t -> lesson.put(t.getA(), t.getB()));
 
 //            boolean foundData = false;
 //
@@ -92,11 +91,11 @@ public class OdfFormulaReader {
 //                    if (cell != null && cell.getValue() != null && !cell.getValue().toString().isEmpty()) {
 //                        MutableCell headerCell = sheet.getCellAt(c, headerRow);
 //                        if (cell.getStyle().getBackgroundColor().getRGB() == GREEN) {
-//                            level.put(getValue(headerCell), getValue(firstCellInRow));
+//                            lesson.put(getValue(headerCell), getValue(firstCellInRow));
 //                        } else if (cell.getStyle().getBackgroundColor().getRGB() == BLUE) {
-//                            level.put(getValue(headerCell), getValue(firstCellInRow), true);
+//                            lesson.put(getValue(headerCell), getValue(firstCellInRow), true);
 //                        } else if (cell.getStyle().getBackgroundColor().getRGB() == RED) {
-//                            level.putBlocked(getValue(headerCell), getValue(firstCellInRow));
+//                            lesson.putBlocked(getValue(headerCell), getValue(firstCellInRow));
 //                        }
 //
 //                        //System.out.print(getValue(cell) + " " + backgroundColor.getRGB() +  "!");
@@ -115,7 +114,7 @@ public class OdfFormulaReader {
 
         }
 
-        return levels;
+        return lessons;
     }
 
     /**
@@ -126,7 +125,7 @@ public class OdfFormulaReader {
      * thousands
      * decimals
      */
-    private Level readSheetWithSettings(Sheet sheet) {
+    private Lesson readSheetWithSettings(Sheet sheet) {
 
         List<Settings> settings = new ArrayList<>();
         ITERATE_SETTINGS:
@@ -166,9 +165,9 @@ public class OdfFormulaReader {
             }
 
         }
-        Level level = new Level(sheet.getName(), settings);
-        System.out.println(level);
-        return level;
+        Lesson lesson = new Lesson(sheet.getName(), settings);
+        System.out.println(lesson);
+        return lesson;
     }
 
 

@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Created by dbk on 18-Aug-16.
  */
-public class Level {
+public class Lesson {
     String title;
     private final List<Settings> settings;
     //todo generator should be use length of list to generate chance
@@ -25,10 +25,10 @@ public class Level {
 
     List<Double> probability = new ArrayList<>();
 
-    Marker marker = new Marker();
+    Marker marker = new FormulaMarker();
 
 
-    public Level(String name, List<Settings> settings) {
+    public Lesson(String name, List<Settings> settings) {
         this.title = name;
         this.settings = settings;
     }
@@ -171,7 +171,7 @@ public class Level {
 
     @Override
     public String toString() {
-        return "Level{" +
+        return "Lesson{" +
                 "title='" + title + '\'' +
                 ", settings=" + settings +
                 ", availableMap=" + availableMap +

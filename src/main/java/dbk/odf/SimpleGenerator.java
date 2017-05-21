@@ -1,6 +1,6 @@
 package dbk.odf;
 
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.rand.RandomLevel;
 
@@ -17,19 +17,19 @@ public class SimpleGenerator {
     private Random r = RandomLevel.getR();
 
     public static final int ATTEMPT_LIMIT = 10;
-    private final List<Level> levels;
+    private final List<Lesson> lessons;
 
-    public SimpleGenerator(List<Level> levels) {
-        this.levels = levels;
+    public SimpleGenerator(List<Lesson> lessons) {
+        this.lessons = lessons;
     }
 
-    public List<Tuple2<Level, List<List<List<Integer>>>>> generate(boolean addSum) {
+    public List<Tuple2<Lesson, List<List<List<Integer>>>>> generate(boolean addSum) {
 
-        //        int[][][] exercises  = new int[levels.size()][seriesCount][stepCountWithSum];
-        List<Tuple2<Level, List<List<List<Integer>>>>> exercises = new ArrayList<>();
-        for (Level level : levels) {
+        //        int[][][] exercises  = new int[lessons.size()][seriesCount][stepCountWithSum];
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises = new ArrayList<>();
+        for (Lesson lesson : lessons) {
 
-            List<Integer> firstNumbers = new ArrayList<>(level.getKeyNumbers());
+            List<Integer> firstNumbers = new ArrayList<>(lesson.getKeyNumbers());
             int indexOf = firstNumbers.indexOf(0);
             if (indexOf >=0) {
                 firstNumbers.remove(indexOf);
@@ -37,22 +37,22 @@ public class SimpleGenerator {
             if (firstNumbers.isEmpty()) {
                 continue;
             }
-            List<List<List<Integer>>> levelList = new ArrayList<>(level.getSettings().size());
-            exercises.add(new Tuple2<>(level, levelList));
+            List<List<List<Integer>>> levelList = new ArrayList<>(lesson.getSettings().size());
+            exercises.add(new Tuple2<>(lesson, levelList));
 
-            for (Settings currentSettings : level.getSettings()) {
+            for (Settings currentSettings : lesson.getSettings()) {
 
                 int stepCount = currentSettings.getSteps();
                 int stepCountWithSum = stepCount + ((addSum) ? 1 : 0);
                 int seriesCount = currentSettings.getSeries();
 
-                System.out.println(level.getTitle());
+                System.out.println(lesson.getTitle());
                 List<List<Integer>> series = new ArrayList<>(seriesCount);
                 levelList.add(series);
 
 
                 for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                    List<Integer> steps = generateStepsWithLimit(addSum, level, firstNumbers, currentSettings);
+                    List<Integer> steps = generateStepsWithLimit(addSum, lesson, firstNumbers, currentSettings);
                     addDuplicate(steps, currentSettings);
 
                     series.add(steps);
@@ -66,13 +66,13 @@ public class SimpleGenerator {
     /**
      * limit of attemps
      */
-    private List<Integer> generateStepsWithLimit(boolean addSum, Level level, List<Integer> firstNumbers, Settings settings) {
+    private List<Integer> generateStepsWithLimit(boolean addSum, Lesson lesson, List<Integer> firstNumbers, Settings settings) {
         List<Integer> steps = new ArrayList<>(settings.steps);
         List<int[]> stepsInDigits;
         int attempts = 0;
         int stepCount = settings.getSteps();
         do {
-            stepsInDigits = generateSteps(addSum, level, firstNumbers, settings);
+            stepsInDigits = generateSteps(addSum, lesson, firstNumbers, settings);
             attempts++;
             if (attempts > ATTEMPT_LIMIT) {
                 System.out.println("ERROR! Impossible generate steps" + ATTEMPT_LIMIT + " times.");
@@ -97,12 +97,12 @@ public class SimpleGenerator {
         }
     }
 
-    private List<int[]> generateSteps(boolean addSum, Level level, List<Integer> firstNumbers, Settings settings) {
+    private List<int[]> generateSteps(boolean addSum, Lesson lesson, List<Integer> firstNumbers, Settings settings) {
         int stepsCount = settings.getSteps();
         List<int[]> steps = new ArrayList<>(stepsCount + ((addSum) ? 1 : 0));
-        List<Integer> obligatoryFirstOperands = level.getObligatoryKeyNumbers();
+        List<Integer> obligatoryFirstOperands = lesson.getObligatoryKeyNumbers();
         if (obligatoryFirstOperands.size() == 0) {
-            int[] sum = generateStepsWithoutObligatory(level, steps, firstNumbers, settings);
+            int[] sum = generateStepsWithoutObligatory(lesson, steps, firstNumbers, settings);
             if (addSum) {
                 steps.add(sum);
             }
@@ -110,7 +110,7 @@ public class SimpleGenerator {
 //            //select step for obligatory
 //            int obligatoryStep = r.nextInt(stepsCount - 1);
 //            int obligatoryFirstOperand = getRandom(obligatoryFirstOperands);
-//            List<Integer> obligatorySecondOperands = level.getObligatoryPair(obligatoryFirstOperand);
+//            List<Integer> obligatorySecondOperands = lesson.getObligatoryPair(obligatoryFirstOperand);
 //            Integer obligatorySecondOperand = getRandom(obligatorySecondOperands);
 //
 //            int sum = 0;
@@ -138,7 +138,7 @@ public class SimpleGenerator {
 //                path = Collections.emptyList();
 //            } else {
 //                //find path to first obligatory value
-//                List<List<Integer>> paths = findPaths(level, obligatoryStep - 1, firstValue, obligatoryFirstOperand);
+//                List<List<Integer>> paths = findPaths(lesson, obligatoryStep - 1, firstValue, obligatoryFirstOperand);
 //                if (paths != null && !paths.isEmpty()) {
 //                    path = paths.get(r.nextInt(paths.size()));
 //                } else {
@@ -151,7 +151,7 @@ public class SimpleGenerator {
 //
 //            }
             int[] sum;
-            sum = generateStepsWithObligatory(level, steps, firstNumbers, settings);
+            sum = generateStepsWithObligatory(lesson, steps, firstNumbers, settings);
 
 
             if (addSum) {
@@ -164,8 +164,8 @@ public class SimpleGenerator {
     }
 
 
-    private List<List<Integer>> findPaths(Level level, int obligatoryStep, Integer from, int to) {
-        final List<Tuple2<Integer, Integer>> tuples = level.getResultMap(to);
+    private List<List<Integer>> findPaths(Lesson lesson, int obligatoryStep, Integer from, int to) {
+        final List<Tuple2<Integer, Integer>> tuples = lesson.getResultMap(to);
 
         List<List<Integer>> paths = new LinkedList<>();
         if (obligatoryStep == 0) {
@@ -175,10 +175,10 @@ public class SimpleGenerator {
             }
             return paths;
         } else {
-            final List<Integer> secondOperandsWithFrom = level.get(from);
+            final List<Integer> secondOperandsWithFrom = lesson.get(from);
             for (Integer secondOperand : secondOperandsWithFrom) {
                 int nextSum = secondOperand + from;
-                List<List<Integer>> subPaths = findPaths(level, obligatoryStep - 1, nextSum, to);
+                List<List<Integer>> subPaths = findPaths(lesson, obligatoryStep - 1, nextSum, to);
                 for (List<Integer> path : subPaths) {
                     if (!path.isEmpty()) {
                         //path.add(0, secondOperand);
@@ -192,17 +192,17 @@ public class SimpleGenerator {
 
     }
 
-    private List<List<Integer>> findPaths(Level level, int steps, int value) {
+    private List<List<Integer>> findPaths(Lesson lesson, int steps, int value) {
         if (steps == 1) {
-            //List<Integer> positiveKeys = level.getPositiveKeys();
-            List<Tuple2<Integer, Integer>> pairs = level.getResultMap(value);
+            //List<Integer> positiveKeys = lesson.getPositiveKeys();
+            List<Tuple2<Integer, Integer>> pairs = lesson.getResultMap(value);
             List<List<Integer>> lists = pairs.stream().filter(t -> t.getA() > 0).mapToInt(Tuple2::getA).mapToObj(Arrays::asList).collect(Collectors.toList());
             return lists;
         } else {
-            List<Tuple2<Integer, Integer>> pairs = level.getResultMap(value);
+            List<Tuple2<Integer, Integer>> pairs = lesson.getResultMap(value);
             List<List<Integer>> paths = new ArrayList<>();
             for (Tuple2<Integer, Integer> pair : pairs) {
-                List<List<Integer>> foundPaths = findPaths(level, steps - 1, pair.getA());
+                List<List<Integer>> foundPaths = findPaths(lesson, steps - 1, pair.getA());
                 foundPaths.forEach(p -> p.add(pair.getB()));
                 paths.addAll(foundPaths);
             }
@@ -228,11 +228,11 @@ public class SimpleGenerator {
         return pairs;
     }
 
-    private int generateNextValue(Random r, Level level, List<Integer> steps, int sum, Integer obligatoryStep, Integer obligatoryNumber, int stepsCount) {
-        List<Integer> obligatoryPair = level.getObligatoryPair(obligatoryNumber);
+    private int generateNextValue(Random r, Lesson lesson, List<Integer> steps, int sum, Integer obligatoryStep, Integer obligatoryNumber, int stepsCount) {
+        List<Integer> obligatoryPair = lesson.getObligatoryPair(obligatoryNumber);
         //
         for (int i = 1; i < stepsCount; i++) {
-            ArrayList<Integer> pairs = (ArrayList<Integer>) level.get(sum);
+            ArrayList<Integer> pairs = (ArrayList<Integer>) lesson.get(sum);
             Integer pairForObligatoryNumber = null;
 //            for(Integer pair: pairs){
 //
@@ -246,7 +246,7 @@ public class SimpleGenerator {
         return sum;
     }
 
-    private int[] generateStepsWithoutObligatory(Level level,
+    private int[] generateStepsWithoutObligatory(Lesson lesson,
                                                  List<int[]> steps,
                                                  List<Integer> firstNumbers,
                                                  Settings settings) {
@@ -261,7 +261,7 @@ public class SimpleGenerator {
 
 
             int digits = (extensionPosition.contains(i)) ? steps.size() : 1;
-            int[] value = getNextValue(level, sumCarry, steps.get(i - 1), digits);
+            int[] value = getNextValue(lesson, sumCarry, steps.get(i - 1), digits);
             //System.out.print(value + ",");
 
             steps.add(value);
@@ -272,12 +272,12 @@ public class SimpleGenerator {
         return sum;
     }
 
-    private int[] generateStepsWithObligatory(Level level,
+    private int[] generateStepsWithObligatory(Lesson lesson,
                                               List<int[]> steps,
                                               List<Integer> firstNumbers,
                                               Settings settings) {
         int stepsCount = settings.getSteps();
-        List<Integer> obligatoryFirstOperands = level.getObligatoryKeyNumbers();
+        List<Integer> obligatoryFirstOperands = lesson.getObligatoryKeyNumbers();
         int obligatoryStep = r.nextInt(stepsCount - 1);
         List<Integer> extensionPosition = getExtensionPosition(settings);
         int obligatoryDigit = (extensionPosition.contains(obligatoryStep) ? r.nextInt(settings.getExtensionDigit() + 1) : 0);
@@ -288,23 +288,23 @@ public class SimpleGenerator {
 //        }
             obligatoryFirstOperands = obligatoryFirstOperands.stream().filter(o->o != 0).collect(Collectors.toList());
             int obligatoryFirstOperand = getRandom(obligatoryFirstOperands);
-            List<Integer> obligatorySecondOperands = level.getObligatoryPair(obligatoryFirstOperand);
+            List<Integer> obligatorySecondOperands = lesson.getObligatoryPair(obligatoryFirstOperand);
             Integer obligatorySecondOperand = getRandom(obligatorySecondOperands);
             int length =(extensionPosition.contains(0))? 1 + settings.getExtensionDigit(): 1;
             int[] firstStep = new int[length];
-            List<Integer> positiveKeys = level.getPositiveKeys();
+            List<Integer> positiveKeys = lesson.getPositiveKeys();
             for (int i = firstStep.length - 1; i >= 0; i--) {
                 if (i == obligatoryDigit) {
                     firstStep[i] = obligatoryFirstOperand;
                 } else {
-                    List<Integer> positivePairs = level.getPositive(getRandom(positiveKeys));
+                    List<Integer> positivePairs = lesson.getPositive(getRandom(positiveKeys));
                     firstStep[i] = getRandom(positivePairs);
 
                 }
             }
 
             boolean positive = obligatorySecondOperand > 0;
-            int[] secondStep = getSecondObligatoryValue(level, firstStep, firstStep, positive, firstStep.length, obligatoryDigit);
+            int[] secondStep = getSecondObligatoryValue(lesson, firstStep, firstStep, positive, firstStep.length, obligatoryDigit);
             sum = Digits.add(firstStep, secondStep);
             steps.add(firstStep);
             steps.add(secondStep);
@@ -312,16 +312,16 @@ public class SimpleGenerator {
 //            int firstValue[] = getFirstValue(firstNumbers, settings, extensionPosition.contains(0));
 //            steps.add(firstValue);
 //            sum = firstValue;
-            List<int[]> path = findPaths(level, obligatoryStep, obligatoryDigit, extensionPosition, settings);
+            List<int[]> path = findPaths(lesson, obligatoryStep, obligatoryDigit, extensionPosition, settings);
             steps.addAll(path);
         }
 
         sum= Digits.sum(steps);
 
         for (int i = steps.size(); i < stepsCount; i++) {
-            boolean positive = r.nextDouble() < level.getPositiveRelation(sum[sum.length - 1]);
+            boolean positive = r.nextDouble() < lesson.getPositiveRelation(sum[sum.length - 1]);
             int digits = (extensionPosition.contains(i)) ? steps.size() : 1;
-            int[] value = new int[3];// = //getNextValue(level, sum, steps.get(i - 1), positive, digits);
+            int[] value = new int[3];// = //getNextValue(lesson, sum, steps.get(i - 1), positive, digits);
             //System.out.print(value + ",");
             sum = Digits.add(sum, value);
 
@@ -340,24 +340,24 @@ public class SimpleGenerator {
      */
 
 
-    private List<int[]> findPaths(Level level, int obligatoryStep, int obligatoryDigit, List<Integer> extensionPosition, Settings settings) {
+    private List<int[]> findPaths(Lesson lesson, int obligatoryStep, int obligatoryDigit, List<Integer> extensionPosition, Settings settings) {
 
         boolean allDigits = extensionPosition.contains(obligatoryStep);
         int length = allDigits ? 1 + settings.getExtensionDigit(): 1;
 
-        List<Integer> obligatoryKeyNumbers = level.getObligatoryKeyNumbers();
+        List<Integer> obligatoryKeyNumbers = lesson.getObligatoryKeyNumbers();
         //List<Integer> positiveNumbers = obligatoryKeyNumbers.stream().filter(i -> i > 0).collect(Collectors.toList());
         int[] obligatoryResult = new int[length];
 
-        List<Integer> obligatoryFirstOperands = level.getObligatoryKeyNumbers();
+        List<Integer> obligatoryFirstOperands = lesson.getObligatoryKeyNumbers();
 
         Integer obligatoryFirstOperand = getRandom(obligatoryFirstOperands);
         obligatoryResult[obligatoryDigit] = obligatoryFirstOperand;
-        List<Integer> obligatoryOperands = level.getObligatoryPair(obligatoryFirstOperand);
+        List<Integer> obligatoryOperands = lesson.getObligatoryPair(obligatoryFirstOperand);
 
 
-        List<Integer> negative = level.getKeyNumbers().stream().filter(n -> n <= 0).collect(Collectors.toList());
-        List<Integer> positive = level.getKeyNumbers().stream().filter(n -> n >= 0).collect(Collectors.toList());
+        List<Integer> negative = lesson.getKeyNumbers().stream().filter(n -> n <= 0).collect(Collectors.toList());
+        List<Integer> positive = lesson.getKeyNumbers().stream().filter(n -> n >= 0).collect(Collectors.toList());
         for (int i = 0; i < length; i++) {
             if (obligatoryDigit == i) {
                 obligatoryResult[i] = obligatoryFirstOperand;
@@ -389,7 +389,7 @@ public class SimpleGenerator {
                 obligatoryPair += (sign) ? carry : -carry;
                 secondObligatoryRow[i] = obligatoryPair;
             } else {
-                List<Integer> pairs = level.get(obligatoryResult[i], sign);
+                List<Integer> pairs = lesson.get(obligatoryResult[i], sign);
                 secondObligatoryRow[i] = getRandom(pairs);
 
             }
@@ -401,7 +401,7 @@ public class SimpleGenerator {
         //getObligatorySecond row for first
         //findPaths to the begin for every gits
         //cache paths for every digits?
-        List<int[]> paths = findPathsToSum(level, obligatoryStep, obligatoryResult);
+        List<int[]> paths = findPathsToSum(lesson, obligatoryStep, obligatoryResult);
         paths.add(secondObligatoryRow);
         return paths;
     }
@@ -409,7 +409,7 @@ public class SimpleGenerator {
     // step 1, result 123:  111, +012, (123, 000)
     // step 0 impossible ,
     // step 2, 254: 363, -241, +132
-    private List<int[]> findPathsToSum(Level level, int step, int[] result) {
+    private List<int[]> findPathsToSum(Lesson lesson, int step, int[] result) {
         //123,
         List<int[]> path = new ArrayList<>();
 
@@ -418,17 +418,17 @@ public class SimpleGenerator {
         int[] lastStep = new int[result.length];
         int[] prevStep = new int[result.length];
         for (int i = result.length -1 ; i >=0 ; i--) {
-            List<Tuple2<Integer, Integer>> pairs = level.getResultMap(result[i]);
+            List<Tuple2<Integer, Integer>> pairs = lesson.getResultMap(result[i]);
             if (result.length - i > 1) {
-                List<Tuple2<Integer, Integer>> overTenPairs = level.getResultMap(10 + result[i]);
+                List<Tuple2<Integer, Integer>> overTenPairs = lesson.getResultMap(10 + result[i]);
                 if (overTenPairs != null) {
                     pairs.addAll(overTenPairs);
                 }
-                List<Tuple2<Integer, Integer>> minusOverTen = level.getResultMap(-10 + result[i]);
+                List<Tuple2<Integer, Integer>> minusOverTen = lesson.getResultMap(-10 + result[i]);
                 if (minusOverTen != null) {
                     pairs.addAll(minusOverTen);
                 }
-                //pairs.addAll(level.getResultMap(10));
+                //pairs.addAll(lesson.getResultMap(10));
                 //pairsPath[i] = pairs;
             }
 
@@ -447,7 +447,7 @@ public class SimpleGenerator {
         }
 
         if (step >=1 ){
-            path = findPathsToSum(level, step - 1, prevStep);
+            path = findPathsToSum(lesson, step - 1, prevStep);
         }
         if (step == 0) {
             path.add(prevStep);
@@ -515,16 +515,16 @@ public class SimpleGenerator {
 //    }
 
     /**
-     * @param level
+     * @param lesson
 
      * @param prevValue
      * @param digits
      * @return
      */
-    private int[] getNextValue(Level level, Tuple2<int[], Integer> sumCarry, int[] prevValue, int digits) {
+    private int[] getNextValue(Lesson lesson, Tuple2<int[], Integer> sumCarry, int[] prevValue, int digits) {
         //if carry >0 -> positive may be false
         int[] sum = sumCarry.getA();
-        boolean positive = r.nextDouble() < level.getPositiveRelation(sum[0]);
+        boolean positive = r.nextDouble() < lesson.getPositiveRelation(sum[0]);
         int carry = 0;//sumCarry.getB();
         int[] nextValue = new int[prevValue.length];
         int currentSum =0;
@@ -534,8 +534,8 @@ public class SimpleGenerator {
             //todo поправка разряда для суммы может быть вычисленна
             int sumWithCarry = sum[i] + carry;
             sumWithCarry += (sumWithCarry >= 10)? -10: (sumWithCarry< 0)? +10:0;
-            List<Integer> negative = level.getNegative(sumWithCarry);
-            List<Integer> positive1 = level.getPositive(sumWithCarry);
+            List<Integer> negative = lesson.getNegative(sumWithCarry);
+            List<Integer> positive1 = lesson.getPositive(sumWithCarry);
             //firstStep
             if (i == prevValue.length - 1) {
                 if (positive) {//отсеить переполнение суммы
@@ -562,14 +562,14 @@ public class SimpleGenerator {
     }
 
     /**
-     * @param level
+     * @param lesson
      * @param sum
      * @param prevValue
      * @param positive
      * @param digits
      * @return
      */
-    private int[] getSecondObligatoryValue(Level level, int[] sum, int[] prevValue, boolean positive, int digits, int obligatoryDigit) {
+    private int[] getSecondObligatoryValue(Lesson lesson, int[] sum, int[] prevValue, boolean positive, int digits, int obligatoryDigit) {
 
         int carry = 0;
         int[] nextValue = new int[prevValue.length];
@@ -578,11 +578,11 @@ public class SimpleGenerator {
             int prevValueWithCarryCorrect = prevValue[i] - carry;
             int value;
             if (i == obligatoryDigit) {
-                List<Integer> obligatoryOperands = level.getObligatoryPair(prevValueWithCarryCorrect);
+                List<Integer> obligatoryOperands = lesson.getObligatoryPair(prevValueWithCarryCorrect);
                 List<Integer> filtered = obligatoryOperands.stream().filter(o -> (positive && o > 0) || (!positive && o < 0)).collect(Collectors.toList());
                 value = getNextValue(prevValueWithCarryCorrect, filtered);
             } else {
-                ArrayList<Integer> pairs = (ArrayList<Integer>) ((positive) ? level.getPositive(prevValueWithCarryCorrect) : level.getNegative(prevValueWithCarryCorrect));
+                ArrayList<Integer> pairs = (ArrayList<Integer>) ((positive) ? lesson.getPositive(prevValueWithCarryCorrect) : lesson.getNegative(prevValueWithCarryCorrect));
                 value = getNextValue(prevValueWithCarryCorrect, pairs);
             }
             value += carry;

@@ -99,7 +99,15 @@ public class AbacusNumber extends Number {
         return new AbacusResult(new AbacusNumber(isFive, ones), carry, operation);
     }
 
-//    public boolean minus(AbacusNumber number) {
+    public boolean isFive() {
+        return isFive;
+    }
+
+    public ONES getOnes() {
+        return ones;
+    }
+
+    //    public boolean minus(AbacusNumber number) {
 //        final int ordinalMinus = ones.ordinal() - number.ones.ordinal();
 //        if(ordinalMinus >=0) {
 //            ones = ONES.values()[ordinalMinus];
@@ -170,5 +178,23 @@ public class AbacusNumber extends Number {
     @Override
     public String toString() {
         return "[" + (isFive? "5 + " + ones.ordinal() : "0 + " + ones.ordinal()) + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbacusNumber number = (AbacusNumber) o;
+
+        if (isFive != number.isFive) return false;
+        return ones == number.ones;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (isFive ? 1 : 0);
+        result = 31 * result + (ones != null ? ones.hashCode() : 0);
+        return result;
     }
 }

@@ -1,6 +1,6 @@
 package dbk.odf;
 
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.rand.RandomLevel;
 
@@ -13,41 +13,41 @@ public class DigitGenerator {
     private Random r = RandomLevel.getR();
 
     public static final int ATTEMPT_LIMIT = 10;
-    private final List<Level> levels;
+    private final List<Lesson> lessons;
 
-    public DigitGenerator(List<Level> levels) {
-        this.levels = levels;
+    public DigitGenerator(List<Lesson> lessons) {
+        this.lessons = lessons;
     }
 
-    public List<Tuple2<Level, List<List<List<Integer>>>>> generate(boolean addSum) {
+    public List<Tuple2<Lesson, List<List<List<Integer>>>>> generate(boolean addSum) {
 
-        //        int[][][] exercises  = new int[levels.size()][seriesCount][stepCountWithSum];
-        List<Tuple2<Level, List<List<List<Integer>>>>> exercises = new ArrayList<>();
-        for (Level level : levels) {
+        //        int[][][] exercises  = new int[lessons.size()][seriesCount][stepCountWithSum];
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises = new ArrayList<>();
+        for (Lesson lesson : lessons) {
 
-            List<Integer> firstNumbers = new ArrayList<>(level.getKeyNumbers());
+            List<Integer> firstNumbers = new ArrayList<>(lesson.getKeyNumbers());
             if (firstNumbers.contains(0)) {
                 firstNumbers.remove(0);
             }
             if (firstNumbers.isEmpty()) {
                 continue;
             }
-            List<List<List<Integer>>> levelList = new ArrayList<>(level.getSettings().size());
-            exercises.add(new Tuple2<>(level, levelList));
+            List<List<List<Integer>>> levelList = new ArrayList<>(lesson.getSettings().size());
+            exercises.add(new Tuple2<>(lesson, levelList));
 
-            for (Settings currentSettings: level.getSettings()) {
+            for (Settings currentSettings: lesson.getSettings()) {
 
                 int stepCount = currentSettings.getSteps();
                 int stepCountWithSum = stepCount + ((addSum) ? 1 : 0);
                 int seriesCount = currentSettings.getSeries();
 
-                System.out.println(level.getTitle());
+                System.out.println(lesson.getTitle());
                 List<List<Integer>> series = new ArrayList<>(seriesCount);
                 levelList.add(series);
 
 
                 for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                    List<Integer> steps = generateStepsWithLimit(addSum, level, firstNumbers, currentSettings);
+                    List<Integer> steps = generateStepsWithLimit(addSum, lesson, firstNumbers, currentSettings);
                     addDuplicate(steps, currentSettings);
 
                     series.add(steps);
@@ -62,12 +62,12 @@ public class DigitGenerator {
     /**
      * limit of attemps
      */
-    private List<Integer> generateStepsWithLimit(boolean addSum, Level level, List<Integer> firstNumbers, Settings settings) {
+    private List<Integer> generateStepsWithLimit(boolean addSum, Lesson lesson, List<Integer> firstNumbers, Settings settings) {
         List<Integer> steps;
         int attempts = 0;
         int stepCount = settings.getSteps();
         do {
-            steps = generateSteps(addSum, level, firstNumbers, settings);
+            steps = generateSteps(addSum, lesson, firstNumbers, settings);
             attempts++;
             if (attempts > ATTEMPT_LIMIT) {
                 System.out.println("ERROR! Impossible generate steps" + ATTEMPT_LIMIT + " times.");
@@ -87,12 +87,12 @@ public class DigitGenerator {
         }
     }
 
-    private List<Integer> generateSteps(boolean addSum, Level level, List<Integer> firstNumbers, Settings settings) {
+    private List<Integer> generateSteps(boolean addSum, Lesson lesson, List<Integer> firstNumbers, Settings settings) {
         int stepsCount = settings.getSteps();
         List<Integer> steps = new ArrayList<>(stepsCount + ((addSum)? 1:0));
-        List<Integer> obligatoryFirstOperands = level.getObligatoryKeyNumbers();
+        List<Integer> obligatoryFirstOperands = lesson.getObligatoryKeyNumbers();
         if (obligatoryFirstOperands.size() == 0) {
-            int sum = generateStepsWithoutObligatory(level, steps, firstNumbers, settings);
+            int sum = generateStepsWithoutObligatory(lesson, steps, firstNumbers, settings);
             if (addSum) {
                 steps.add(sum);
             }
@@ -100,7 +100,7 @@ public class DigitGenerator {
             //select step for obligatory
             int obligatoryStep = r.nextInt(stepsCount - 1);
             int obligatoryFirstOperand = obligatoryFirstOperands.get(r.nextInt(obligatoryFirstOperands.size()));
-            List<Integer> obligatorySecondOperands = level.getObligatoryPair(obligatoryFirstOperand);
+            List<Integer> obligatorySecondOperands = lesson.getObligatoryPair(obligatoryFirstOperand);
             Integer obligatorySecondOperand = obligatorySecondOperands.get(r.nextInt(obligatorySecondOperands.size()));
 
             int sum = 0;
@@ -128,7 +128,7 @@ public class DigitGenerator {
                 path = Collections.emptyList();
             } else {
                 //find path to first obligatory value
-                List<List<Integer>> paths = findPaths(level, obligatoryStep - 1, firstValue, obligatoryFirstOperand);
+                List<List<Integer>> paths = findPaths(lesson, obligatoryStep - 1, firstValue, obligatoryFirstOperand);
                 if (paths != null && !paths.isEmpty()) {
                     path = paths.get(r.nextInt(paths.size()));
                 } else {
@@ -143,7 +143,7 @@ public class DigitGenerator {
 
             //fill to the end by simple random values
             for (int i = path.size() + 1; i < stepsCount; i++) {
-                int value = getNextValue(level, sum, steps.get(i - 1));
+                int value = getNextValue(lesson, sum, steps.get(i - 1));
                 sum += value;
                 steps.add(value);
             }
@@ -157,8 +157,8 @@ public class DigitGenerator {
     }
 
 
-    private List<List<Integer>> findPaths(Level level, int obligatoryStep, Integer from, int to) {
-        final List<Tuple2<Integer, Integer>> tuples = level.getResultMap(to);
+    private List<List<Integer>> findPaths(Lesson lesson, int obligatoryStep, Integer from, int to) {
+        final List<Tuple2<Integer, Integer>> tuples = lesson.getResultMap(to);
 
         List<List<Integer>> paths = new LinkedList<>();
         if (obligatoryStep == 0) {
@@ -168,10 +168,10 @@ public class DigitGenerator {
             }
             return paths;
         } else {
-            final List<Integer> secondOperandsWithFrom = level.get(from);
+            final List<Integer> secondOperandsWithFrom = lesson.get(from);
             for (Integer secondOperand : secondOperandsWithFrom) {
                 int nextSum = secondOperand + from;
-                List<List<Integer>> subPaths = findPaths(level, obligatoryStep - 1, nextSum, to);
+                List<List<Integer>> subPaths = findPaths(lesson, obligatoryStep - 1, nextSum, to);
                 for (List<Integer> path : subPaths) {
                     if (!path.isEmpty()) {
                         //path.add(0, secondOperand);
@@ -202,11 +202,11 @@ public class DigitGenerator {
         return pairs;
     }
 
-    private int generateNextValue(Random r, Level level, List<Integer> steps, int sum, Integer obligatoryStep, Integer obligatoryNumber, int stepsCount) {
-        List<Integer> obligatoryPair = level.getObligatoryPair(obligatoryNumber);
+    private int generateNextValue(Random r, Lesson lesson, List<Integer> steps, int sum, Integer obligatoryStep, Integer obligatoryNumber, int stepsCount) {
+        List<Integer> obligatoryPair = lesson.getObligatoryPair(obligatoryNumber);
         //
         for (int i = 1; i < stepsCount; i++) {
-            ArrayList<Integer> pairs = (ArrayList<Integer>) level.get(sum);
+            ArrayList<Integer> pairs = (ArrayList<Integer>) lesson.get(sum);
             Integer pairForObligatoryNumber = null;
 //            for(Integer pair: pairs){
 //
@@ -220,7 +220,7 @@ public class DigitGenerator {
         return sum;
     }
 
-    private int generateStepsWithoutObligatory(Level level,
+    private int generateStepsWithoutObligatory(Lesson lesson,
                                                List<Integer> steps,
                                                List<Integer> firstNumbers,
                                                Settings settings) {
@@ -231,7 +231,7 @@ public class DigitGenerator {
         steps.add(firstValue);
         int sum = firstValue;
         for (int i = 1; i < stepsCount; i++) {
-            int value = getNextValue(level, sum, steps.get(i - 1));
+            int value = getNextValue(lesson, sum, steps.get(i - 1));
             //System.out.print(value + ",");
             sum += value;
             steps.add(value);
@@ -239,8 +239,8 @@ public class DigitGenerator {
         return sum;
     }
 
-    private int getNextValue(Level level, int sum, Integer prevValue) {
-        ArrayList<Integer> pairs = (ArrayList<Integer>) level.get(sum);
+    private int getNextValue(Lesson lesson, int sum, Integer prevValue) {
+        ArrayList<Integer> pairs = (ArrayList<Integer>) lesson.get(sum);
         //Integer index = r.nextInt(pairs.size());
 
         Integer nextValue = pairs.get(r.nextInt(pairs.size()));

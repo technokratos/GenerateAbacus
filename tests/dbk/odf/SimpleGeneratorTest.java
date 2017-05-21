@@ -1,6 +1,6 @@
 package dbk.odf;
 
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,19 +28,19 @@ public class SimpleGeneratorTest {
     @org.junit.Test
     public void testGenerate1_9() throws Exception {
 
-        List<Level> levels = new ArrayList<>();
+        List<Lesson> lessons = new ArrayList<>();
         List<Settings> settings = new ArrayList<>();
         Settings locSet = new Settings();
         locSet.setSteps(2);
         locSet.setSeries(1);
         settings.add(locSet);
 
-        Level level = new Level("test", settings);
-        levels.add(level);
-        level.put(1, Arrays.<Integer>asList(9));
-        level.put(9, Arrays.<Integer>asList(1));
-        SimpleGenerator generator = new SimpleGenerator(levels);
-        List<Tuple2<Level, List<List<List<Integer>>>>> generate = generator.generate(true);
+        Lesson lesson = new Lesson("test", settings);
+        lessons.add(lesson);
+        lesson.put(1, Arrays.<Integer>asList(9));
+        lesson.put(9, Arrays.<Integer>asList(1));
+        SimpleGenerator generator = new SimpleGenerator(lessons);
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> generate = generator.generate(true);
         System.out.println(generate);
         List<Integer> steps = generate.iterator().next().getB().iterator().next().iterator().next();
         List<List<Integer>> results = new ArrayList<>();
@@ -53,20 +53,20 @@ public class SimpleGeneratorTest {
     @org.junit.Test
     public void testGenerate1_8_9() throws Exception {
 
-        List<Level> levels = new ArrayList<>();
+        List<Lesson> lessons = new ArrayList<>();
         List<Settings> settings = new ArrayList<>();
         Settings locSet = new Settings();
         locSet.setSteps(2);
         locSet.setSeries(1);
         settings.add(locSet);
 
-        Level level = new Level("test", settings);
-        levels.add(level);
-        level.put(1, Arrays.<Integer>asList(9, 8));
-        level.put(8, Arrays.<Integer>asList(1));
-        level.put(9, Arrays.<Integer>asList(1));
-        SimpleGenerator generator = new SimpleGenerator(levels);
-        List<Tuple2<Level, List<List<List<Integer>>>>> generate = generator.generate(true);
+        Lesson lesson = new Lesson("test", settings);
+        lessons.add(lesson);
+        lesson.put(1, Arrays.<Integer>asList(9, 8));
+        lesson.put(8, Arrays.<Integer>asList(1));
+        lesson.put(9, Arrays.<Integer>asList(1));
+        SimpleGenerator generator = new SimpleGenerator(lessons);
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> generate = generator.generate(true);
         System.out.println(generate);
         List<Integer> steps = generate.iterator().next().getB().iterator().next().iterator().next();
         List<List<Integer>> results = new ArrayList<>();

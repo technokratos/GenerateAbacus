@@ -1,7 +1,7 @@
 package dbk.odf;
 
 import dbk.abacus.Count;
-import dbk.abacus.Level;
+import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import org.jopendocument.dom.spreadsheet.MutableCell;
 import org.jopendocument.dom.spreadsheet.Sheet;
@@ -21,9 +21,9 @@ import java.util.SortedMap;
  */
 public class MarkerWriter {
 
-    private final List<Tuple2<Level, SortedMap<Tuple2<Integer, Integer>, Count>>> result = new ArrayList<>();
+    private final List<Tuple2<Lesson, SortedMap<Tuple2<Integer, Integer>, Count>>> result = new ArrayList<>();
 
-    public MarkerWriter(List<Tuple2<Level, List<List<List<Integer>>>>> data) {
+    public MarkerWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> data) {
         data.forEach(l-> result.add(new Tuple2<>(l.getA(),l.getA().getMarker().getCountMap())));
 
     }
@@ -31,9 +31,9 @@ public class MarkerWriter {
 
     public void write(String fileName) {
         SpreadSheet outSheet = SpreadSheet.createEmpty(new DefaultTableModel());
-        for (Tuple2<Level, SortedMap<Tuple2<Integer, Integer>, Count>> tuple2 : result) {
-            Level level = tuple2.getA();
-            Sheet sheet = outSheet.addSheet(level.getTitle());
+        for (Tuple2<Lesson, SortedMap<Tuple2<Integer, Integer>, Count>> tuple2 : result) {
+            Lesson lesson = tuple2.getA();
+            Sheet sheet = outSheet.addSheet(lesson.getTitle());
             SortedMap<Tuple2<Integer, Integer>, Count> map = tuple2.getB();
             Tuple2<Integer, Integer> min = findMin(map.keySet());
             Tuple2<Integer, Integer> max = findMax(map.keySet());
@@ -57,7 +57,7 @@ public class MarkerWriter {
                     if (count != null) {
                         sheet.getCellAt(columnNumber, rowNumber).setValue(count.toString());
                     }
-                    List<Integer> obligatoryPair = level.getObligatoryPair(i);
+                    List<Integer> obligatoryPair = lesson.getObligatoryPair(i);
                     if (obligatoryPair != null && obligatoryPair.contains(j)) {
                         MutableCell<SpreadSheet> cell = sheet.getCellAt(columnNumber, rowNumber);
 

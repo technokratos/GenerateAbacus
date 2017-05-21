@@ -1,25 +1,22 @@
 package dbk.excel;
 
-import dbk.abacus.Count;
-import dbk.abacus.Level;
-import dbk.abacus.Tuple2;
+import dbk.abacus.*;
 import dbk.adapter.*;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.stream.IntStream;
 
 /**
  * Created by dbk on 04-Oct-16.
  */
 public class SheetMarkerWriter {
-    private final List<Tuple2<Level, SortedMap<Tuple2<Integer, Integer>, Count>>> result = new ArrayList<>();
+    private final List<Tuple2<Lesson, Marker>> result = new ArrayList<>();
 
-    public SheetMarkerWriter(List<Tuple2<Level, List<List<List<Integer>>>>> data) {
-        data.forEach(l-> result.add(new Tuple2<>(l.getA(),l.getA().getMarker().getCountMap())));
+    public SheetMarkerWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> data) {
+        data.forEach(l-> result.add(new Tuple2<>(l.getA(),l.getA().getMarker())));
 
     }
 
@@ -31,10 +28,12 @@ public class SheetMarkerWriter {
 
         Style backGroundGray = workbook.getStyle("BACK_GROUND_GRAY", style -> style.setBackgroundColor(Color.LIGHT_GRAY));
 
-        for (Tuple2<Level, SortedMap<Tuple2<Integer, Integer>, Count>> tuple2 : result) {
-            Level level = tuple2.getA();
-            Sheet sheet = workbook.addSheet(level.getTitle());
-            SortedMap<Tuple2<Integer, Integer>, Count> map = tuple2.getB();
+
+        for (Tuple2<Lesson, Marker> tuple2 : result) {
+
+            Lesson lesson = tuple2.getA();
+            Sheet sheet = workbook.addSheet(lesson.getTitle());
+            SortedMap<Tuple2<Integer, Integer>, Count> map = tuple2.getB().getCountMap();
             Tuple2<Integer, Integer> min = findMin(map.keySet());
             Tuple2<Integer, Integer> max = findMax(map.keySet());
             sheet.setColumnCount(2 + (max.getA() - min.getA()));
@@ -57,16 +56,33 @@ public class SheetMarkerWriter {
                     if (count != null) {
                         sheet.getCellAt(columnNumber, rowNumber).setValue(count.toString());
                     }
-                    List<Integer> obligatoryPair = level.getObligatoryPair(i);
+                    List<Integer> obligatoryPair = lesson.getObligatoryPair(i);
                     if (obligatoryPair != null && obligatoryPair.contains(j)) {
                         Cell cell = sheet.getCellAt(columnNumber, rowNumber);
-
-
                         cell.setStyle(backGroundGray);
                         //cell.setHorStyleWithBorder();
                     }
                 }
             }
+
+
+            if (tuple2.getB() instanceof FormulaMarker) {
+                final Map<String, Count> formulaCount = ((FormulaMarker) tuple2.getB()).getFormulaCount();
+                int rowNumber = 22;
+                List<String> formulas = new ArrayList<>(formulaCount.keySet());
+                formulas.sort(String::compareTo);
+
+                IntStream.range(0, formulas.size()).forEach(i->{
+                    sheet.getCellAt(1, rowNumber + i).setValue(formulas.get(i));
+                    final Count count = formulaCount.get(formulas.get(i));
+                    if (count != null) {
+                        sheet.getCellAt(2, rowNumber + i).setValue(count.toString());
+                    }
+
+                });
+
+            }
+
 
 
         }
