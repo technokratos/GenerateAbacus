@@ -21,8 +21,8 @@ public class MainFormulaApp {
     public static final String dir = "exercises/level3/";
     public static final String TASKS_DIR = "tasks/level3/";
     public static final boolean ADD_SUM = true;
-    public static final int SEEK = 4;
-    public static final String TASK_NAME = "abacus_formula_odd";
+    public static final int SEEK = 3;
+    public static final String TASK_NAME = "abacus_formula_even";
     public static final String outfile = dir + TASK_NAME + "." + SEEK;
     public static final String outMarker = dir + TASK_NAME+ "." + SEEK + ".marker.xls";
     public static final int LANDSCAPE_SERIES = 10;

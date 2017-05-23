@@ -148,22 +148,9 @@ public class ExerciseWriter {
                 //merge the first cell
                 int startMergeRow = lastRowNumber + 1;
 
-                //todo check -1 for addSum;
-
-                int rowToMerge = series.get(0).size() - 1 + (printSum ? -1:0);
-
-//                sheet.merge(FIRST_COLUMN, startMergeRow, 0, rowToMerge);
-//                System.out.println("  Merge startMergeRow " +  startMergeRow + " rowToMerge " + rowToMerge + " lastRowNumber " + lastRowNumber );
-                //set border style for merged cells
                 getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow ).setValue(Integer.toString(groupSeriesIndex + 1));
                 getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow + 1).setValue("__мин.");
                 getVerBorderedCell(sheet, FIRST_COLUMN, startMergeRow + 2).setValue("__сек.");
-                //don't work
-                //todo check 1 for
-
-
-                //seriesHeader.setFontSize(24);
-
 
                 for (int seriesIndex = 0; seriesIndex < series.size(); seriesIndex++) {
                     List<Integer> steps = series.get(seriesIndex);
@@ -203,7 +190,7 @@ public class ExerciseWriter {
 
 
                 lastRowNumber+= series.iterator().next().size();//with step for answer
-                //lastRowNumber ++;
+
                 System.out.println("  The end of series " + " lastRowNumber " + lastRowNumber );
                 //add page break
                 //do not add last page break and description
@@ -228,7 +215,6 @@ public class ExerciseWriter {
 
                 }
 
-                //lastRowNumber = setDescription(sheet, lastRowNumber, settings);
             }
             //for sheet without page breaks
             if (!isPortrait) {
