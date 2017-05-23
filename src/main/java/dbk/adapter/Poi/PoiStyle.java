@@ -7,9 +7,11 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Font;
 
 import java.awt.*;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +46,9 @@ public class PoiStyle extends Style {
 
     @Override
     public void setBold() {
-
+        final HSSFFont boldFont = workbook.createFont();
+        boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        hssfStyle.setFont(boldFont);
     }
 
     @Override

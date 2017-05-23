@@ -11,7 +11,7 @@ public abstract class Workbook {
 
     private static Map<String, Style> styleMap = new HashMap<>();
 
-    public abstract Sheet addSheet(String title);
+    public abstract Sheet addSheet(String title, boolean landScale);
 
     public abstract void saveAs() throws IOException;
 

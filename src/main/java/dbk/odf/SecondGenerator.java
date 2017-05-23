@@ -21,6 +21,7 @@ public class SecondGenerator {
 
     public static final int ATTEMPT_LIMIT = 10;
     private final List<Lesson> lessons;
+    private boolean addSum = true;
 
     public SecondGenerator(List<Lesson> lessons) {
         this.lessons = lessons;
@@ -48,7 +49,8 @@ public class SecondGenerator {
             for (Settings currentSettings : lesson.getSettings()) {
                 countSettings++;
                 int stepCount = currentSettings.getSteps();
-                int stepCountWithSum = stepCount + ((currentSettings.getAddSum()) ? 1 : 0);
+
+                int stepCountWithSum = stepCount + (addSum ? 1 : 0);
                 int seriesCount = currentSettings.getSeries();
 
 
@@ -70,7 +72,7 @@ public class SecondGenerator {
 //                    addDuplicate(steps, currentSettings);
 
                     series.add(steps);
-                    boolean invalid = lesson.getMarker().mark(steps, currentSettings.getAddSum());
+                    boolean invalid = lesson.getMarker().mark(steps, addSum);
                     if (invalid) {
                         System.out.println("Lesson " + lesson.getTitle() + " settings " + countSettings
                         + " series " + seriesIndex + " steps " + steps);
@@ -110,7 +112,7 @@ public class SecondGenerator {
 
     private List<Integer> generateObligatorySteps(Lesson lesson, Settings currentSettings) {
 
-        List<int[]> steps = new ArrayList<>(currentSettings.steps + (currentSettings.getAddSum() ? 1 : 0));
+        List<int[]> steps = new ArrayList<>(currentSettings.steps + (addSum ? 1 : 0));
 
 
         //getObligatoryPosition
@@ -149,7 +151,7 @@ public class SecondGenerator {
 //            steps.add(step);
 //        }
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
-        if (currentSettings.getAddSum()) {
+        if (addSum) {
             steps.add(Digs.sum(steps));
         }
         return Digs.getValue(steps);
@@ -377,10 +379,10 @@ public class SecondGenerator {
     private List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
 
         int[] digits = getDigitsForSteps(currentSettings);
-        List<int[]> steps = new ArrayList<>(currentSettings.steps + (currentSettings.getAddSum() ? 1 : 0));
+        List<int[]> steps = new ArrayList<>(currentSettings.steps + (addSum ? 1 : 0));
 
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
-        if (currentSettings.getAddSum()) {
+        if (addSum) {
             steps.add(Digs.sum(steps));
         }
         return Digs.getValue(steps);
@@ -409,7 +411,14 @@ public class SecondGenerator {
 
         int step[] = new int[1 + currentSettings.getExtensionDigit()];
         //Tuple2<int[], Integer> sumCarry
-        int[] sum = (steps.isEmpty()) ? new int[step.length] : Digs.sum(steps);
+        final int[] sum;
+        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sum(steps);
+        if (digits >= extSum.length) {
+            sum = new int[digits];
+            System.arraycopy(extSum,0, sum, 0, extSum.length );
+        } else {
+            sum = extSum;
+        }
         boolean sign = r.nextBoolean();
         int excludeZero = (steps.size() < currentSettings.getSteps()) ? 1 : 0;
         List<Integer> negative = lesson.getNegative(sum[0]);

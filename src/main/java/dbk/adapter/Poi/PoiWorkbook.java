@@ -3,19 +3,16 @@ package dbk.adapter.Poi;
 import dbk.adapter.Sheet;
 import dbk.adapter.Style;
 import dbk.adapter.Workbook;
-import dbk.odf.ExerciseWriter;
 import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.PrintSetup;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by dbk on 04-Oct-16.
@@ -54,10 +51,13 @@ public class PoiWorkbook extends Workbook {
     }
 
     @Override
-    public Sheet addSheet(String title) {
+    public Sheet addSheet(String title, boolean landScale) {
 
         HSSFSheet sheet = workbook.createSheet(title);
-        sheet.getPrintSetup().setLandscape(true);
+
+        sheet.getPrintSetup().setLandscape(landScale);
+        //sheet.getPrintSetup().setPaperSize(landScale?PrintSetup.A4_PAPERSIZE:PrintSetup.A4_ROTATED_PAPERSIZE);
+        sheet.getPrintSetup().setPaperSize(PrintSetup.A4_ROTATED_PAPERSIZE);
         return new PoiSheet(sheet, this);
     }
 

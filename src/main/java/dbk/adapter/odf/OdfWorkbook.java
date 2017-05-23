@@ -27,7 +27,7 @@ public class OdfWorkbook extends Workbook {
     }
 
     @Override
-    public Sheet addSheet(String title) {
+    public Sheet addSheet(String title, boolean landScale) {
         return new OdfSheet(this);
     }
 

@@ -32,7 +32,7 @@ public class SheetMarkerWriter {
         for (Tuple2<Lesson, Marker> tuple2 : result) {
 
             Lesson lesson = tuple2.getA();
-            Sheet sheet = workbook.addSheet(lesson.getTitle());
+            Sheet sheet = workbook.addSheet(lesson.getTitle(), true);
             SortedMap<Tuple2<Integer, Integer>, Count> map = tuple2.getB().getCountMap();
             Tuple2<Integer, Integer> min = findMin(map.keySet());
             Tuple2<Integer, Integer> max = findMax(map.keySet());

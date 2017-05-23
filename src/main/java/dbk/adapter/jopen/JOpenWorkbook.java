@@ -18,7 +18,7 @@ public class JOpenWorkbook extends Workbook {
     }
 
     @Override
-    public Sheet addSheet(String title) {
+    public Sheet addSheet(String title, boolean landScale) {
         return new JOpenSheet(this);
     }
 

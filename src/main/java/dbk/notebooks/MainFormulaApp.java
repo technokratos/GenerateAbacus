@@ -7,7 +7,6 @@ import dbk.excel.SheetMarkerWriter;
 import dbk.odf.ExerciseWriter;
 import dbk.odf.OdfFormulaReader;
 import dbk.odf.SecondGenerator;
-import dbk.odf.Settings;
 import dbk.rand.RandomLevel;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public class MainFormulaApp {
     public static final int PORTRAINT_TASKS_ON_PAGE = 6;
 
     public static void main(String[] args){
-
+        RandomLevel.setR(SEEK);
         String fileName = TASKS_DIR + TASK_NAME + ".ods";
         OdfFormulaReader reader = new OdfFormulaReader(fileName);
         List<Lesson> lessons = reader.read();
@@ -40,11 +39,19 @@ public class MainFormulaApp {
 
 
         initOrientation(PAGE, lessons);
-        lessons=generateHomeWork(lessons);
+        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons);
         Book book = reader.getBook();
-        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generateAndWrite(lessons, true, book, PAGE);
 
-        //List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generateAndWrite(lessons, false, book, PAGE);
+
+        SecondGenerator generator = new SecondGenerator(lessonsWithHomeWork);
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
+
+
+        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile , PAGE, false, lessons);
+        exerciseWriter.write();
+        ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , PAGE, true, lessons);
+        exerciseWriterWithAnswer.write();
+
 
         SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
         markerWriter.write(outMarker);
@@ -73,20 +80,6 @@ public class MainFormulaApp {
         } else {
             lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(LANDSCAPE_SERIES)));
         }
-    }
-
-    private static List<Tuple2<Lesson, List<List<List<Integer>>>>> generateAndWrite(List<Lesson> lessons, boolean addSum, Book book, PAGE_ORIENTATION page) {
-        RandomLevel.setR(SEEK);
-        lessons.forEach(level -> level.getSettings().forEach(s -> {
-            s.setAddSum(addSum);
-        }));
-        SecondGenerator generator = new SecondGenerator(lessons);
-        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
-
-
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile +  (addSum? "_answered":""), book, page);
-        exerciseWriter.write();
-        return data;
     }
 
     public enum PAGE_ORIENTATION {

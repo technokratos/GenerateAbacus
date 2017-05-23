@@ -9,6 +9,7 @@ import dbk.texts.Texts;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Random;
 
 import static dbk.texts.Texts.*;
 
@@ -29,23 +30,39 @@ public class ExerciseWriter {
     private static final int FIRST_COLUMN = 0;
     public static final int LANDSCAPE_THIRD_TITLE_COLUMN = 8;
     public static final int PORTRAIN_THIRD_TITLE_COLUMN = 5;
+    public static final String HOR_STYLE_WITH_BORDER = "HOR_STYLE_WITH_BORDER";
+    public static final String HOR_STYLE_WITH_BORDER_BOLD = "HOR_STYLE_WITH_BORDER_BOLD";
+    public static final String VERT_STYLE_WITH_BORDER = "VERT_STYLE_WITH_BORDER";
+    public static final String VERT_STYLE_WITH_BORDER_BOLD = "VERT_STYLE_WITH_BORDER_BOLD";
     public final int thirdTitleColumn;
     public final int pageNumberColumn;
     public static final int SECOND_TITLE_COLUMN = 3;
     public static final int LANDSCAPE_ROW_ON_PAGE = 23;
     private final List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises;
     private final String fileName;
-    private final Book book;
+    //private final Book book;
     private final MainFormulaApp.PAGE_ORIENTATION page;
     public final int rowOnPage;
     private final boolean isPortrait;
+    private final List<Lesson> lessons;
     private int startNewPage;
     private int groupOnPage;
+    private final boolean printSum;
 
-    public ExerciseWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises, String fileName, Book book, MainFormulaApp.PAGE_ORIENTATION page) {
+
+    private String vertBrderBold;
+    private String vertBorder;
+    private String border;
+    private String borderBold;
+
+    Random r = new Random();
+    private String thinBorder;
+    private String centerAlign;
+
+    public ExerciseWriter(List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises, String fileName, MainFormulaApp.PAGE_ORIENTATION page, boolean printSum, List<Lesson> lessons) {
         this.exercises = exercises;
-        this.book = book;
-        this.fileName = fileName + ".xls";
+        this.lessons = lessons;
+        this.fileName = fileName +  (printSum? ".answered":"") + ".xls";
         this.page = page;
         isPortrait = page == MainFormulaApp.PAGE_ORIENTATION.PORTRAIT;
         rowOnPage = !isPortrait ? LANDSCAPE_ROW_ON_PAGE: 30;
@@ -54,6 +71,15 @@ public class ExerciseWriter {
         thirdTitleColumn = !isPortrait ? LANDSCAPE_THIRD_TITLE_COLUMN: PORTRAIN_THIRD_TITLE_COLUMN;
         pageNumberColumn = thirdTitleColumn + 2;
         groupOnPage = !isPortrait ? 4: 7;
+
+        this.printSum = printSum;
+
+        vertBrderBold = VERT_STYLE_WITH_BORDER_BOLD + r.nextInt();
+        vertBorder = VERT_STYLE_WITH_BORDER + r.nextInt();
+        border = HOR_STYLE_WITH_BORDER + r.nextInt();
+        borderBold = HOR_STYLE_WITH_BORDER_BOLD + r.nextInt();
+        thinBorder = "THIN_BORDER" + r.nextInt();
+        centerAlign = "CENTER_ALIGN" + r.nextInt();
     }
 
     public void write() {
@@ -62,7 +88,7 @@ public class ExerciseWriter {
 
         int pageNumber = 1;
         pageNumber = addPageWithName(workbook, pageNumber);
-        pageNumber = addPageWithSchedule(workbook, pageNumber, book);
+        pageNumber = addPageWithSchedule(workbook, pageNumber, exercises);
         int lastRowNumber = 0;
 
         Sheet sheet = null;
@@ -76,7 +102,7 @@ public class ExerciseWriter {
 
             if (lastRowNumber > startNewPage || sheet == null) {
                 System.out.println("Start new sheet " + lesson.getTitle());
-                sheet = workbook.addSheet(lesson.getTitle());
+                sheet = workbook.addSheet(lesson.getTitle(), isPortrait);
                 lastRowNumber = 0;
                 //add odd page
                 if (!isPortrait) {
@@ -107,25 +133,24 @@ public class ExerciseWriter {
                 System.out.println("  Try print description  " + settings.description + " "  + settings.description1  + " " + settings.description2 +  " lastRowNumber " + lastRowNumber );
                 lastRowNumber = setDescription(sheet, lastRowNumber, settings);
 
-                //lastRowNumber++;//???????? ?????? ??? ??????????
                 for (int seriesIndex = 0; seriesIndex < series.size(); seriesIndex++) {
                     //set header of series
                     int column = seriesIndex + 1;
-                    Cell headerSeries = getBorderedCell(sheet, FIRST_COLUMN + column, lastRowNumber);
-                    //setRowHeaderStyle(headerSeries);
+                    Cell headerSeries = getBorderedBoldCell(sheet, FIRST_COLUMN + column, lastRowNumber);
                     headerSeries.setValue(Integer.toString(seriesIndex + 1));
                 }
 
                 System.out.println("  Draw series header " + " lastRowNumber " + lastRowNumber );
 
-                Cell numberHeader = getBorderedCell(sheet, FIRST_COLUMN, lastRowNumber );
+                Cell numberHeader = getBorderedBoldCell(sheet, FIRST_COLUMN, lastRowNumber );
 
                 numberHeader.setValue(Texts.NUMBER_SYMBOLL.getText());
                 //merge the first cell
                 int startMergeRow = lastRowNumber + 1;
 
                 //todo check -1 for addSum;
-                int rowToMerge = series.get(0).size() - 1 + (settings.getAddSum()? -1:0);
+
+                int rowToMerge = series.get(0).size() - 1 + (printSum ? -1:0);
 
 //                sheet.merge(FIRST_COLUMN, startMergeRow, 0, rowToMerge);
 //                System.out.println("  Merge startMergeRow " +  startMergeRow + " rowToMerge " + rowToMerge + " lastRowNumber " + lastRowNumber );
@@ -151,26 +176,28 @@ public class ExerciseWriter {
                            // cellAt.setValue(Integer.toString(stepIndex + 1));
                         }
                     }
+
                     for (int stepIndex = 0; stepIndex < steps.size(); stepIndex++) {
                         Integer value = steps.get(stepIndex);
                         Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
                         cellAt.setValue(value);
 
                         //add sum cell
-                        if (stepIndex == steps.size() - 1 && settings.getAddSum()  ) {
-                            Style thinBorder = cellAt.getSheet().getWorkbook().getStyle("THIN_BORDER", Style::setThinBorder);
+                        if (stepIndex == steps.size() - 1 && printSum) {
+                            Style thinBorder = cellAt.getSheet().getWorkbook().getStyle(this.thinBorder, Style::setThinBorder);
                             thinBorder.setThinBorder();
                             cellAt.setStyle(thinBorder);
                         } else {
-                            Style centerStyle = cellAt.getSheet().getWorkbook().getStyle("CENTER_ALIGN", Style::setVertStyleWithBorder);
+
+                            Style centerStyle = cellAt.getSheet().getWorkbook().getStyle(centerAlign, Style::setVertStyleWithBorder);
                             cellAt.setStyle(centerStyle);
                         }
 
                     }
                     //empty place for summ
-                    if (!settings.getAddSum()) {
+                    if (!printSum) {
                         Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, steps.size() + lastRowNumber);
-                        Style thinBorder = cellAt.getSheet().getWorkbook().getStyle("THIN_BORDER", Style::setThinBorder);
+                        Style thinBorder = cellAt.getSheet().getWorkbook().getStyle(this.thinBorder, Style::setThinBorder);
                         cellAt.setStyle(thinBorder);
                         cellAt.setValue("");
 
@@ -178,11 +205,11 @@ public class ExerciseWriter {
                 }
 
                 //answer header of row
-                int rowForSumma = lastRowNumber + (settings.getAddSum()? -1:0) + series.get(0).size();
+                int rowForSumma = lastRowNumber + (printSum ? -1:0) + series.get(0).size();
                 System.out.println("  Draw summa " + rowForSumma );
                 getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
 
-                if (!settings.getAddSum()) {
+                if (!printSum) {
                     lastRowNumber++;//add empty row for answer
                 }
 
@@ -236,8 +263,8 @@ public class ExerciseWriter {
         }
     }
 
-    private int addPageWithSchedule(Workbook workbook, int pageNumber, Book book) {
-        Sheet sheet = workbook.addSheet("Schedule");
+    private int addPageWithSchedule(Workbook workbook, int pageNumber, List<Tuple2<Lesson, List<List<List<Integer>>>>> exercises) {
+        Sheet sheet = workbook.addSheet("Schedule", true);
         sheet.setRowCount(rowOnPage);
 
 //        for (int i = 0; i < rowOnPage; i++) {
@@ -245,58 +272,70 @@ public class ExerciseWriter {
 //        }
 
         sheet.setColumnCount(7);
-        sheet.setColumnSize(0, 4500);
+        sheet.setColumnSize(0, 3000);
         sheet.setColumnSize(1, 3000);
         sheet.setColumnSize(2, 6000);
         sheet.setColumnSize(3, 6000);
-        sheet.setColumnSize(4, 4000);
-        sheet.setColumnSize(5, 4000);
-        sheet.setColumnSize(6, 4000);
+        sheet.setColumnSize(4, 7000);
+        sheet.setColumnSize(5, 3500);
+        sheet.setColumnSize(6, 3500);
 
         int columnNumber = 0;
-        int firstRow = 0;
+        int lastRow = 0;
         for (int i = 0; i < 7; i++) {
-            getCell(sheet, i, 1);//set border
+            getBorderedCell(sheet, i, 1);//set border
         }
-        sheet.merge(columnNumber, firstRow, 0, 1);
-        getCell(sheet, columnNumber++, firstRow).setValue(WEEK.getText());
-        sheet.merge(columnNumber, firstRow, 0, 1);
-        getCell(sheet, columnNumber++, firstRow).setValue(DATE.getText());
-        sheet.merge(columnNumber, firstRow, 0, 1);
-        getCell(sheet, columnNumber++, firstRow).setValue(CLASS_WORK.getText());
-        sheet.merge(columnNumber, firstRow, 0, 1);
-        getCell(sheet, columnNumber++, firstRow).setValue(HOME_WORK.getText());
-        sheet.merge(columnNumber, firstRow, 0, 1);
-        getCell(sheet, columnNumber++, firstRow).setValue(COMMENTS.getText());
-        sheet.merge(columnNumber, firstRow, 1, 0);
-        getCell(sheet, columnNumber, firstRow).setValue(SIGNS.getText());
-        getCell(sheet, columnNumber + 1, firstRow);//set border in left up corner
+        sheet.merge(columnNumber, lastRow, 0, 1);
+        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(WEEK.getText());
+        sheet.merge(columnNumber, lastRow, 0, 1);
+        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(DATE.getText());
+        sheet.merge(columnNumber, lastRow, 0, 1);
+        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(CLASS_WORK.getText());
+        sheet.merge(columnNumber, lastRow, 0, 1);
+        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(HOME_WORK.getText());
+        sheet.merge(columnNumber, lastRow, 0, 1);
+        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(COMMENTS.getText());
+        sheet.merge(columnNumber, lastRow, 1, 0);
+        getBorderedBoldCell(sheet, columnNumber, lastRow).setValue(SIGNS.getText());
+        getBorderedCell(sheet, columnNumber + 1, lastRow);//set border in left up corner
 
-        getCell(sheet, columnNumber ++, firstRow + 1).setValue(PARENTS.getText());
-        getCell(sheet, columnNumber ++, firstRow + 1).setValue(INSTRUCTOR.getText());
+        getBorderedBoldCell(sheet, columnNumber ++, lastRow + 1).setValue(PARENTS.getText());
+        getBorderedBoldCell(sheet, columnNumber ++, lastRow + 1).setValue(INSTRUCTOR.getText());
 
-        firstRow+=2;
+        lastRow+=2;
 
-        int firstWeek = (Book.EVEN == book)? 1 : 0;
+        //int firstWeek = (Book.EVEN == book)? 1 : 0;
 
-        for(int i = 0; i< 9; i ++) {
-            sheet.merge(0, firstRow + 2 * i, 0, 1);
-            getCell(sheet, 0, firstRow + 2 * i).setValue((firstWeek + 2 * i) + TH_WEEK.getText());
-            getCell(sheet, 0, firstRow + 2 * i + 1);
-            for (int j = 1; j < columnNumber; j++) {
-                sheet.merge(j, firstRow + 2*i, 0, 1);
-                getCell(sheet, j, firstRow + 2 * i);
-                getCell(sheet, j, firstRow + 2 * i + 1);
+        final int rows = 3;
+        final int mergeRows = rows - 1;
+
+        for(int i = 0; i< lessons.size(); i ++) {
+            final Lesson lesson = lessons.get(i);
+            final Settings settings = lesson.getSettings().get(0);
+            for (int j = 0; j < columnNumber; j++) {
+                sheet.merge(j, lastRow + rows *i, 0, mergeRows);
+                getBorderedCell(sheet, j, lastRow + rows * i);
+                for (int k = 0; k < mergeRows; k++) {
+                    getBorderedCell(sheet, j, lastRow + rows * i + k);
+                }
             }
+
+            getBorderedCell(sheet, 0, lastRow + rows * i).setValue(settings.getDescription());
+            getBorderedCell(sheet, 2, lastRow + rows * i).setValue(settings.getDescription1());
         }
+        lastRow+= lessons.size() * rows;
+        for (int j = 0; j < columnNumber; j++) {
+                getBorderedCell(sheet, j, lastRow -1).setValue("test");
+            }
+
 
         return pageNumber+1;
     }
 
     private int addPageWithName(Workbook workbook, int pageNumber) {
-        Sheet sheet = workbook.addSheet("Name");
+        Sheet sheet = workbook.addSheet("Name", isPortrait);
         sheet.setRowCount(rowOnPage);
-        int nameColumn = (isPortrait)? 2: 3;
+        int nameColumn = (isPortrait)? 1: 3;
         sheet.setColumnCount(nameColumn);
         sheet.getCellAt(nameColumn, (isPortrait)? 3:2).setValue(STUDENT_NAME.getText());
         sheet.getCellAt(nameColumn, (isPortrait)? 5:4).setValue(INSTRUCTOR_NAME.getText());
@@ -354,23 +393,42 @@ public class ExerciseWriter {
     }
 
     private Cell getBorderedCell(Sheet sheet, int column, int lastRowNumber) {
-//return getSideAttribute(s, "border", this.getNS("fo"));, attrName + "-" + s.name().toLowerCase()
-        // "RIGHT" -> "thin solid #000000"
         Cell cellAt = sheet.getCellAt(column, lastRowNumber);
-        //cellAt.setHorStyleWithBorder();
-        Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle("HOR_STYLE_WITH_BORDER", Style::setThinBorder);
-        horStyleWithBorder.setHorStyleWithBorder();
+
+        Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(border, Style::setThinBorder);
+//        horStyleWithBorder.setHorStyleWithBorder();
+//        horStyleWithBorder.setVertStyleWithBorder();
         cellAt.setStyle(horStyleWithBorder);
         return cellAt;
-    }//getCellStyleDesc().findDefaultStyle(this.getODDocument().getPackage());
+    }
+
+    private Cell getBorderedBoldCell(Sheet sheet, int column, int lastRowNumber) {
+        Cell cellAt = sheet.getCellAt(column, lastRowNumber);
+
+        Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(borderBold, Style::setThinBorder);
+        horStyleWithBorder.setBold();
+        horStyleWithBorder.setHorStyleWithBorder();
+
+        cellAt.setStyle(horStyleWithBorder);
+        return cellAt;
+    }
 
 
     private Cell getVerBorderedCell(Sheet sheet, int column, int lastRowNumber) {
         Cell cellAt = sheet.getCellAt(column, lastRowNumber);
 
-        Style vertStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle("VERT_STYLE_WITH_BORDER", Style::setVertStyleWithBorder);
+
+        Style vertStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(vertBorder, Style::setVertStyleWithBorder);
         cellAt.setStyle(vertStyleWithBorder);
 
+        return cellAt;
+    }
+    private Cell getVerBorderedBoldCell(Sheet sheet, int column, int lastRowNumber) {
+
+        Cell cellAt = sheet.getCellAt(column, lastRowNumber);
+        Style vertStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(vertBrderBold, Style::setVertStyleWithBorder);
+        cellAt.setStyle(vertStyleWithBorder);
+        vertStyleWithBorder.setBold();
         return cellAt;
     }
 

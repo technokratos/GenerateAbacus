@@ -70,46 +70,7 @@ public class OdfFormulaReader {
             lesson.getSettings().iterator().next().getRequired()
                     .stream()
                     .flatMap(s -> formula.getOperandsForFormula(s).stream())
-                    .forEach(t -> lesson.put(t.getA(), t.getB()));
-
-//            boolean foundData = false;
-//
-//            Integer headerRow = null;
-//            for (int r = 0; r < sheet.getRowCount(); r++) {
-//
-//                boolean found = false;
-//                MutableCell<SpreadSheet> firstCellInRow = sheet.getCellAt(0, r);
-//                if (headerRow == null) {
-//                    if ("data".equals(firstCellInRow.getValue())) {
-//                        headerRow = r;
-//                    } else {
-//                        continue;
-//                    }
-//                }
-//                for (int c = 1; c < sheet.getColumnCount(); c++) {
-//                    MutableCell<SpreadSheet> cell = sheet.getCellAt(c, r);
-//                    if (cell != null && cell.getValue() != null && !cell.getValue().toString().isEmpty()) {
-//                        MutableCell headerCell = sheet.getCellAt(c, headerRow);
-//                        if (cell.getStyle().getBackgroundColor().getRGB() == GREEN) {
-//                            lesson.put(getValue(headerCell), getValue(firstCellInRow));
-//                        } else if (cell.getStyle().getBackgroundColor().getRGB() == BLUE) {
-//                            lesson.put(getValue(headerCell), getValue(firstCellInRow), true);
-//                        } else if (cell.getStyle().getBackgroundColor().getRGB() == RED) {
-//                            lesson.putBlocked(getValue(headerCell), getValue(firstCellInRow));
-//                        }
-//
-//                        //System.out.print(getValue(cell) + " " + backgroundColor.getRGB() +  "!");
-//                        found = true;
-//                    } else {
-//                        if (c > 0) {
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (!found) {
-//                    break;
-//                }
-//                //System.out.println();
+                    .forEach(t -> lesson.put(t.getA(), t.getB(), true));
 
 
         }
