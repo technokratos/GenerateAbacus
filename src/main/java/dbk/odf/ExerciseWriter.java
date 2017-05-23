@@ -171,48 +171,35 @@ public class ExerciseWriter {
                         //set header of lines
                         lastRowNumber++;
                         System.out.println("    First step in iterate series steps size " + steps.size() + " lastRowNumber " + lastRowNumber );
+                        //set vertical border for the first column
                         for (int stepIndex = 0; stepIndex < steps.size(); stepIndex++) {
                             Cell cellAt = getVerBorderedCell(sheet, FIRST_COLUMN, stepIndex + lastRowNumber);
                            // cellAt.setValue(Integer.toString(stepIndex + 1));
                         }
                     }
 
-                    for (int stepIndex = 0; stepIndex < steps.size(); stepIndex++) {
+                    for (int stepIndex = 0; stepIndex < steps.size() ; stepIndex++) {
                         Integer value = steps.get(stepIndex);
-                        Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
-                        cellAt.setValue(value);
 
-                        //add sum cell
-                        if (stepIndex == steps.size() - 1 && printSum) {
-                            Style thinBorder = cellAt.getSheet().getWorkbook().getStyle(this.thinBorder, Style::setThinBorder);
-                            thinBorder.setThinBorder();
-                            cellAt.setStyle(thinBorder);
-                        } else {
-
+                        if (stepIndex < steps.size() - 1 ) {
+                            Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
                             Style centerStyle = cellAt.getSheet().getWorkbook().getStyle(centerAlign, Style::setVertStyleWithBorder);
                             cellAt.setStyle(centerStyle);
+                            cellAt.setValue(value);
+                        } else {
+                            final Cell borderedCell = getBorderedCell(sheet, FIRST_COLUMN + seriesIndex + 1, stepIndex + lastRowNumber);
+                            if (printSum) {
+                                borderedCell.setValue(value);
+                            }
                         }
-
-                    }
-                    //empty place for summ
-                    if (!printSum) {
-                        Cell cellAt = getCell(sheet, FIRST_COLUMN + seriesIndex + 1, steps.size() + lastRowNumber);
-                        Style thinBorder = cellAt.getSheet().getWorkbook().getStyle(this.thinBorder, Style::setThinBorder);
-                        cellAt.setStyle(thinBorder);
-                        cellAt.setValue("");
 
                     }
                 }
 
                 //answer header of row
-                int rowForSumma = lastRowNumber + (printSum ? -1:0) + series.get(0).size();
+                int rowForSumma = lastRowNumber + series.get(0).size() -1;
                 System.out.println("  Draw summa " + rowForSumma );
                 getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
-
-                if (!printSum) {
-                    lastRowNumber++;//add empty row for answer
-                }
-
 
 
                 lastRowNumber+= series.iterator().next().size();//with step for answer
