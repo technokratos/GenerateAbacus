@@ -3,7 +3,6 @@ package dbk.odf;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.rand.RandomLevel;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,8 +68,8 @@ public class SecondGenerator {
                     if (seriesIndex == blockedSeries) {
                         removeBlocked(lesson);
                     }
-//                    addDuplicate(steps, currentSettings);
-
+                    steps=addDuplicate(steps, currentSettings);
+                    steps=addDecimal(steps, currentSettings);
                     series.add(steps);
                     boolean invalid = lesson.getMarker().mark(steps, addSum);
                     if (invalid) {
@@ -96,9 +95,27 @@ public class SecondGenerator {
 
     }
 
+    private List<Integer> addDecimal(List<Integer> steps, Settings currentSettings) {
+        final int dec = currentSettings.getDecimals();
+        int mux = 1;
+        for (int i = 0; i < dec; i++) {
+            mux *= 10;
+        }
+        final int finalMux = mux;
+        return steps.stream().map(s-> s* finalMux).collect(Collectors.toList());
+    }
 
-    private void addDuplicate(List<Integer> steps, Settings currentSettings) {
-        throw new NotImplementedException();
+
+    private List<Integer> addDuplicate(List<Integer> steps, Settings currentSettings) {
+
+
+        final int dup = currentSettings.getDuplicate();
+        int mux = 1;
+        for (int i = 0; i < dup; i++) {
+            mux *= 10 +1;
+        }
+        final int finalMux = mux;
+        return steps.stream().map(s-> s* finalMux).collect(Collectors.toList());
     }
 
     private List<Integer> generateSteps(Lesson lesson, Settings currentSettings) {
@@ -553,7 +570,7 @@ public class SecondGenerator {
             if (i == obligatoryDigit) {
                 value = secondObligatory;
             } else {
-                if (sign) {
+                if (sign && lesson.getPositive(prevStep[i]) != null) {
                     value = getRandom(lesson.getPositive(prevStep[i]));
                 } else {
                     List<Integer> negativePairs = lesson.getNegative(prevStep[i]);
@@ -563,7 +580,7 @@ public class SecondGenerator {
                         final int lambdaCarry = carry;
                         negativePairs = negativePairs.stream().filter(p -> p + prevStep[index] + lambdaCarry >=0).collect(Collectors.toList());
                     }
-                    if (negativePairs.size() >0) {
+                    if (negativePairs != null && negativePairs.size() >0) {
                         value = getRandom(negativePairs);
                     } else {
                         value = 0;

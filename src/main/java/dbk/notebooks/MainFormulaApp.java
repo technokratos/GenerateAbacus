@@ -9,6 +9,7 @@ import dbk.odf.OdfFormulaReader;
 import dbk.odf.SecondGenerator;
 import dbk.rand.RandomLevel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +19,13 @@ import java.util.List;
 public class MainFormulaApp {
 
     public static final PAGE_ORIENTATION PAGE = PAGE_ORIENTATION.PORTRAIT;
-    public static final String dir = "exercises/level3/";
-    public static final String TASKS_DIR = "tasks/level3/";
+    private static final String OUT_DIR = "exercises/level3/";
+    private static final String TASKS_DIR = "tasks/level3/";
     public static final boolean ADD_SUM = true;
-    public static final int SEEK = 3;
-    public static final String TASK_NAME = "abacus_formula_even";
-    public static final String outfile = dir + TASK_NAME + "." + SEEK;
-    public static final String outMarker = dir + TASK_NAME+ "." + SEEK + ".marker.xls";
+    public static final int SEEK = 4;
+    public static final String TASK_NAME = "abacus_formula_odd";
+    private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
+    private static final String outMarker = OUT_DIR + TASK_NAME+ "." + SEEK + ".marker.xls";
     public static final int LANDSCAPE_SERIES = 10;
     public static final int PORTRAIT_SERIES = 7;
     public static final int LANDSCAPE_TASKS_ON_PAGE = 4;
@@ -52,18 +53,23 @@ public class MainFormulaApp {
         ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , PAGE, true, lessons);
         exerciseWriterWithAnswer.write();
 
-
+        try {
+            final Process process = Runtime.getRuntime()
+                    .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outfile, outfile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
         markerWriter.write(outMarker);
         System.out.println("already read");
     }
 
-    private static void addSum(boolean addSum, List<Lesson> lessons) {
+    public static void addSum(boolean addSum, List<Lesson> lessons) {
         lessons.forEach(l-> l.getSettings().forEach(settings -> settings.setAddSum(addSum)));
     }
 
 
-    private static List<Lesson> generateHomeWork(List<Lesson> lessons) {
+    public static List<Lesson> generateHomeWork(List<Lesson> lessons) {
         List<Lesson> lessonsHomeWorks = new ArrayList<>();
         lessons.forEach( l-> {
             lessonsHomeWorks.add(l);
@@ -74,7 +80,7 @@ public class MainFormulaApp {
         return lessonsHomeWorks;
     }
 
-    private static void initOrientation(PAGE_ORIENTATION page, List<Lesson> lessons) {
+    public static void initOrientation(PAGE_ORIENTATION page, List<Lesson> lessons) {
         if (page == PAGE_ORIENTATION.PORTRAIT) {
             lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(PORTRAIT_SERIES)));
         } else {

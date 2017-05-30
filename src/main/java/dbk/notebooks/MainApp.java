@@ -5,37 +5,59 @@ import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.excel.SheetMarkerWriter;
 import dbk.odf.*;
+import dbk.rand.RandomLevel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static dbk.notebooks.MainFormulaApp.PAGE;
+import static dbk.notebooks.MainFormulaApp.generateHomeWork;
+import static dbk.notebooks.MainFormulaApp.initOrientation;
 
 /**
  * Created by dbk on 18-Aug-16.
  */
 public class MainApp {
 
-    public static void main(String[] args){
-//        ExcelGenerator excelGenerator = new ExcelGenerator("abacus.xls");
-//        excelGenerator.read();
-        //String fileName = "abacus.ods";
-        String fileName = "abacus_application_for_exercises.ods";
-        //String fileName = "abacusLevel9_1.ods";
-        //String fileName = "abacusWithoutObligatory.ods";
-        OdfReader reader = new OdfReader(fileName);
-        ArrayList<Lesson> lessons = reader.read();
-        Book book = reader.getBook();
-        lessons.forEach(level -> level.getSettings().forEach(s-> s.setAddSum(true)));
-        SecondGenerator generator = new SecondGenerator(lessons);
-        //ExerciseWriter exerciseWriter = new ExerciseWriter(generator.generate(false), "abacus_out.ods");
+    private static final String OUT_DIR = "exercises/level1/";
+    public static final String TASKS_DIR = "tasks/level1/";
+    public static final boolean ADD_SUM = true;
+    public static final int SEEK = 6;
+    public static final String TASK_NAME = "abacus_level_1_odd";
+    private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
+    private static final String outMarker = OUT_DIR + TASK_NAME+ "." + SEEK + ".marker.xls";
 
+    public static void main(String[] args){
+        RandomLevel.setR(SEEK);
+        String fileName = TASKS_DIR + TASK_NAME + ".ods";
+        OdfReader reader = new OdfReader(fileName);
+        List<Lesson> lessons = reader.read();
+
+
+
+        initOrientation(PAGE, lessons);
+        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons);
+//        List<Lesson> lessonsWithHomeWork = lessons;
+
+
+        SecondGenerator generator = new SecondGenerator(lessonsWithHomeWork);
         List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data,"abacus_out", MainFormulaApp.PAGE_ORIENTATION.LANDSCAPE, true, lessons);
-        //todo generate report with count of used pairs
+
+
+        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile , PAGE, false, lessons);
         exerciseWriter.write();
-        //MarkerWriter markerWriter = new MarkerWriter(data);
-        //markerWriter.write("abacus_marker.odf");
+        ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , PAGE, true, lessons);
+        exerciseWriterWithAnswer.write();
+
+        try {
+            final Process process = Runtime.getRuntime()
+                    .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outfile, outfile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
-        markerWriter.write("abacus_marker.xls");
+        markerWriter.write(outMarker);
         System.out.println("already read");
     }
 }
