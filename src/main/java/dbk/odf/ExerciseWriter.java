@@ -34,6 +34,7 @@ public class ExerciseWriter {
     public static final String HOR_STYLE_WITH_BORDER_BOLD = "HOR_STYLE_WITH_BORDER_BOLD";
     public static final String VERT_STYLE_WITH_BORDER = "VERT_STYLE_WITH_BORDER";
     public static final String VERT_STYLE_WITH_BORDER_BOLD = "VERT_STYLE_WITH_BORDER_BOLD";
+    public static final int ANSWER_HEIGHT_IN_POINTS = 20;
     public final int thirdTitleColumn;
     public final int pageNumberColumn;
     public static final int SECOND_TITLE_COLUMN = 3;
@@ -186,6 +187,7 @@ public class ExerciseWriter {
                 //answer header of row
                 int rowForSumma = lastRowNumber + series.get(0).size() -1;
                 System.out.println("  Draw summa " + rowForSumma );
+                sheet.setRowHeight(ANSWER_HEIGHT_IN_POINTS, rowForSumma);
                 getBorderedCell(sheet, FIRST_COLUMN, rowForSumma).setValue(Texts.SUMMA.getText());
 
 

@@ -4,6 +4,7 @@ import dbk.odf.Settings;
 import dbk.rand.RandomLevel;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by dbk on 18-Aug-16.
@@ -42,7 +43,7 @@ public class Lesson {
 
     public Lesson(String name, List<Settings> settings) {
         this.title = name;
-        this.settings = settings;
+        this.settings = settings.stream().map(Settings::new).collect(Collectors.toList());
     }
 
     public String getTitle() {

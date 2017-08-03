@@ -1,6 +1,5 @@
 package dbk.notebooks;
 
-import dbk.abacus.Book;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.excel.SheetMarkerWriter;
@@ -8,7 +7,6 @@ import dbk.odf.*;
 import dbk.rand.RandomLevel;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static dbk.notebooks.MainFormulaApp.PAGE;
@@ -20,11 +18,13 @@ import static dbk.notebooks.MainFormulaApp.initOrientation;
  */
 public class MainApp {
 
-    private static final String OUT_DIR = "exercises/level1/";
-    public static final String TASKS_DIR = "tasks/level1/";
-    public static final boolean ADD_SUM = true;
-    public static final int SEEK = 6;
-    public static final String TASK_NAME = "abacus_level_1_odd";
+    public static final String LEVEL = "level3";
+
+    private static final String OUT_DIR = "exercises/" + LEVEL + "/";
+    public static final String TASKS_DIR = "tasks/" + LEVEL + "/";
+
+    public static final int SEEK = 4;
+    public static final String TASK_NAME = "abacus_formula_odd";
     private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
     private static final String outMarker = OUT_DIR + TASK_NAME+ "." + SEEK + ".marker.xls";
 
@@ -37,7 +37,7 @@ public class MainApp {
 
 
         initOrientation(PAGE, lessons);
-        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons);
+        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons, 6);
 //        List<Lesson> lessonsWithHomeWork = lessons;
 
 

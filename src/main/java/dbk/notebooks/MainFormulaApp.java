@@ -8,6 +8,7 @@ import dbk.odf.ExerciseWriter;
 import dbk.odf.OdfFormulaReader;
 import dbk.odf.SecondGenerator;
 import dbk.rand.RandomLevel;
+import dbk.texts.Texts;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,14 +19,18 @@ import java.util.List;
  */
 public class MainFormulaApp {
 
+    public static final int LEVEL = 2;
+    public static final Odd odd = Odd.ODD;
+    private static final String OUT_DIR = "exercises/level" + LEVEL + "/";
+    private static final String TASKS_DIR = "tasks/level" + LEVEL + "/";
+    public static final int SEEK = 2 * LEVEL + ((odd == Odd.ODD)? 1:0);
+
     public static final PAGE_ORIENTATION PAGE = PAGE_ORIENTATION.PORTRAIT;
-    private static final String OUT_DIR = "exercises/level3/";
-    private static final String TASKS_DIR = "tasks/level3/";
-    public static final boolean ADD_SUM = true;
-    public static final int SEEK = 4;
-    public static final String TASK_NAME = "abacus_formula_odd";
+    public static final String TASK_NAME = "abacus_formula_" + odd.toString();
+
     private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
     private static final String outMarker = OUT_DIR + TASK_NAME+ "." + SEEK + ".marker.xls";
+
     public static final int LANDSCAPE_SERIES = 10;
     public static final int PORTRAIT_SERIES = 7;
     public static final int LANDSCAPE_TASKS_ON_PAGE = 4;
@@ -40,7 +45,7 @@ public class MainFormulaApp {
 
 
         initOrientation(PAGE, lessons);
-        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons);
+        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons, 6);
         Book book = reader.getBook();
 
 
@@ -69,12 +74,14 @@ public class MainFormulaApp {
     }
 
 
-    public static List<Lesson> generateHomeWork(List<Lesson> lessons) {
+    public static List<Lesson> generateHomeWork(List<Lesson> lessons, int countOfHomeWorks) {
         List<Lesson> lessonsHomeWorks = new ArrayList<>();
         lessons.forEach( l-> {
             lessonsHomeWorks.add(l);
-            for (int i = 1; i <=6; i++) {
-                lessonsHomeWorks.add(new Lesson(l, "_ДЗ_" + i));
+            for (int i = 1; i <= countOfHomeWorks; i++) {
+                final Lesson lesson = new Lesson(l, "_ДЗ_" + i);
+                lessonsHomeWorks.add(lesson);
+                lesson.getSettings().stream().limit(1).forEach(s-> s.setDescription2(Texts.HOME_WORK.getText()));
             }
         });
         return lessonsHomeWorks;
