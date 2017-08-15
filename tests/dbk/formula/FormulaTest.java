@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dbk.formula.AbacusNumber.abacus;
+import static dbk.formula.AbacusNumber.of;
 
 /**
  * Created by denis on 28.04.17.
@@ -48,11 +48,11 @@ public class FormulaTest {
     @Test
     public void setFormula(){
         String[][] formulas = new String[9][18];
-        AbacusNumber first = abacus(4);
-        AbacusNumber firstPlus = abacus(4);
-        AbacusNumber firstMinus = abacus(4);
+        AbacusNumber first = of(4);
+        AbacusNumber firstPlus = of(4);
+        AbacusNumber firstMinus = of(4);
 
-        AbacusNumber second = abacus(3);
+        AbacusNumber second = of(3);
 //        boolean carryPlus = firstPlus.add(second);
 //        boolean carryMinus = firstMinus.minus(second);
 //

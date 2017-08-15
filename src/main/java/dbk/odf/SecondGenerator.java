@@ -149,10 +149,9 @@ public class SecondGenerator {
         } else {
             int[] obligatoryResult = obligatorySteps.remove(0);
 
-
             List<int[]> backSteps = generateBackStepsToResult(lesson, obligatoryPosition, obligatoryResult);
             if (Digs.getValue(Digs.sum(backSteps)) != Digs.getValue(obligatoryResult)) {
-                // throw new IllegalStateException("Expected obligatory value isn't equals with back steps");
+                //throw new IllegalStateException("Expected obligatory value isn't equals with back steps");
             }
             steps.addAll(backSteps);
             steps.addAll(obligatorySteps);
@@ -439,7 +438,7 @@ public class SecondGenerator {
         boolean sign = r.nextBoolean();
         int excludeZero = (steps.size() < currentSettings.getSteps()) ? 1 : 0;
         List<Integer> negative = lesson.getNegative(sum[0]);
-        //??????? ???????? ?? ???????????? ?????, ???? ???? ? ?????? ???????? ?? ????????
+
         if (!sign && !possibleNegativeCarry(sum, 1) && negative != null) {
             negative = negative.stream().filter(n -> (sum[0] + n) >= 0 + excludeZero).collect(Collectors.toList());
             if (negative.isEmpty()) {
@@ -450,7 +449,7 @@ public class SecondGenerator {
         }
 
         List<Integer> positive = lesson.getPositive(sum[0]);
-        //???????? ???????? ?? ???????????? ???? ???? ?????????? ? ??????? ??????? ??????.
+
         if (sign && !possiblePositiveCarry(sum, 1)) {
             positive = positive.stream().filter(n -> (sum[0] + n) <= 9).collect(Collectors.toList());
             if (positive.isEmpty()) {

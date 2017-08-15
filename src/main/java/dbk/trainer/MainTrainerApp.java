@@ -17,7 +17,7 @@ public class MainTrainerApp {
 
     public static void main(String[] args) throws IOException {
 
-        String fileName = "tasks/level2/abacus.ods";
+        String fileName = "tasks/level2/of.ods";
         OdfReader reader = new OdfReader(fileName);
         ArrayList<Lesson> lessons = reader.read();
         Book book = reader.getBook();

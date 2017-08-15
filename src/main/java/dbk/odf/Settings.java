@@ -13,9 +13,11 @@ import java.util.TreeSet;
  * thouthends
  * decimal
  */
-@NoArgsConstructor
-@AllArgsConstructor
+//@NoArgsConstructor
+//@AllArgsConstructor
 public class Settings {
+    public Settings() {
+    }
 
     public Settings(Settings s) {
         this(s.series,
@@ -32,20 +34,20 @@ public class Settings {
                 s.required);
     }
 
-//    public Settings(int series, int steps, int decimals, int duplicate, String description, String description1, String description2, int extensionDigit, int extensionCount, boolean addSum, TreeSet<String> formula, TreeSet<String> required) {
-//        this.series = series;
-//        this.steps = steps;
-//        this.decimals = decimals;
-//        this.duplicate = duplicate;
-//        this.description = description;
-//        this.description1 = description1;
-//        this.description2 = description2;
-//        this.extensionDigit = extensionDigit;
-//        this.extensionCount = extensionCount;
-//        this.addSum = addSum;
-//        this.formula = formula;
-//        this.required = required;
-//    }
+    public Settings(int series, int steps, int decimals, int duplicate, String description, String description1, String description2, int extensionDigit, int extensionCount, boolean addSum, TreeSet<String> formula, TreeSet<String> required) {
+        this.series = series;
+        this.steps = steps;
+        this.decimals = decimals;
+        this.duplicate = duplicate;
+        this.description = description;
+        this.description1 = description1;
+        this.description2 = description2;
+        this.extensionDigit = extensionDigit;
+        this.extensionCount = extensionCount;
+        this.addSum = addSum;
+        this.formula = formula;
+        this.required = required;
+    }
 
     int series = 10;
     int steps = 4;

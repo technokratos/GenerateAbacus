@@ -18,7 +18,12 @@ public class BigAbacusNumber extends Number {
         this.digits = digits;
     }
 
+    public static BigAbacusNumber of(int value) {
+        return new BigAbacusNumber(Math.abs(value));
+    }
+
     public BigAbacusNumber(int value) {
+        value = Math.abs(value);
         final int nums;
 //        if (value > 1) {
             nums = (int) Math.ceil(Math.log10(value + 1));
@@ -88,10 +93,17 @@ public class BigAbacusNumber extends Number {
 
             if (carry) {
                 final AbacusResult bWithCarry = b.add(new AbacusNumber(1));
-                final AbacusResult minusB = a.minus(bWithCarry.getResult());
-                carry = minusB.isCarry();
-                operations[i] = minusB.getOperation();
-                digits[i] = minusB.getResult();
+                if (!bWithCarry.isCarry()) {
+                    final AbacusResult minusB = a.minus(bWithCarry.getResult());
+                    carry = minusB.isCarry();
+                    operations[i] = minusB.getOperation();
+                    digits[i] = minusB.getResult();
+                } else {
+
+                    operations[i] = "";
+                    digits[i] = a;
+                    carry = true;
+                }
             } else {
                 final AbacusResult minusB = a.minus(b);
                 carry = minusB.isCarry();
@@ -152,5 +164,13 @@ public class BigAbacusNumber extends Number {
     @Override
     public int hashCode() {
         return Arrays.hashCode(digits);
+    }
+
+    public BigResult add(int arg) {
+        return add(of(arg));
+    }
+
+    public BigResult minus(Integer arg) {
+        return minus(of(arg));
     }
 }

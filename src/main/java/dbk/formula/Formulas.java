@@ -1,18 +1,29 @@
 package dbk.formula;
 
+import Expressions.Expression;
 import dbk.abacus.Tuple2;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static dbk.formula.AbacusNumber.abacus;
+import static dbk.formula.AbacusNumber.of;
+import static java.lang.Integer.parseInt;
+import static java.lang.Math.abs;
 
 /**
  * Created by denis on 27.04.17.
  */
 public class Formulas {
 
+    //Pattern pattern= Pattern.compile("(\\+|-)(\\d*)(\\+|-)?(\\d)?(\\+|-)?(\\d)?");
+    static Pattern pattern= Pattern.compile("([+-])(\\d+)([+-])?(\\d+)?([+-])?(\\d+)?");
 
-    private final TreeSet<String> formulas = new TreeSet<>((o1, o2) -> o1.length() - o2.length() == 0? o1.compareTo(o2) : o1.length() - o2.length() );
+    //private final TreeSet<String> formulas = new TreeSet<>((o1, o2) -> o1.length() - o2.length() == 0? o1.compareTo(o2) : o1.length() - o2.length() );
+    private final TreeSet<String> formulas = new TreeSet<>(new FormulaComparator());
     private final Map<String, List<Tuple2<Integer,Integer>>> formulaToOperands = new HashMap<>();
     private final Map<Integer, Set<String>> firstOperandToFormula = new HashMap<>();
 
@@ -45,10 +56,10 @@ public class Formulas {
 
         for (int i = 0; i <10 ; i++) {
             for (int j = 0; j < 10; j++) {
-                AbacusNumber first = abacus(i);
-                final AbacusResult plusResult = abacus(i).add(abacus(j));
+                AbacusNumber first = of(i);
+                final AbacusResult plusResult = of(i).add(of(j));
                 AbacusNumber firstPlus = plusResult.getResult();
-                final AbacusResult minusResult = first.minus(abacus(j));
+                final AbacusResult minusResult = first.minus(of(j));
                 AbacusNumber firstMinus = minusResult.getResult();
 
 
@@ -142,6 +153,7 @@ public class Formulas {
 //                .collect(Collectors.joining("\n"));
 
         //System.out.println(collect);
+        formulas.formulas.remove("");
         return formulas;
     }
 
@@ -168,5 +180,84 @@ public class Formulas {
     public Set<String> getFormulasForOperand(Integer operand) {
         return firstOperandToFormula.get(operand);
     }
+
+    public static class FormulaComparator implements Comparator<String>{
+
+
+        @Override
+        public int compare(String o1, String o2) {
+            return order(o1) - order(o2);
+        }
+
+        private int order(String o1) {
+            if ("".equals( o1)) {
+                return 0;
+            }
+            final net.objecthunter.exp4j.Expression expression = new ExpressionBuilder(o1).build();
+            final int value = (int) expression.evaluate();
+
+            int sign = value < 0 ? 1 : 0;
+            int length = o1.length();
+            final int res = abs(value) * 10 + sign + length * 100;
+            return res;
+
+//            final Matcher m1 = pattern.matcher(o1);
+//
+//            int[] w3 = new int[]{100, 1000, 1000, 10000, 100000,1000000};
+//            int[] w2 = new int[]{1000, 10000, 100000,1000000};
+//            int[] w1 = new int[]{100000, 1000000};
+//            int[] w = w3;
+//            if (m1.find()) {
+//                //boolean s1 = "+".equals( o1.substring(0, 1) );
+//                int s1 = sign(m1, 1);
+//                int s2 = sign(m1, 3);
+//                int s3 = sign(m1, 5);
+//                int v1 = value(m1, 2);
+//                int v2 = value(m1, 4);
+//                int v3 = value(m1, 6);
+//                int mux = 10;
+//                if (m1.group(4) == null) {
+//                    w = shift(w, 4);
+//                    mux = 1
+//                } else if (m1.group(6) == null) {
+//                    w = shift(w,2);
+//                }
+//                int[] values = new int[]{s1, v1, s2, v2, s3, v3};
+//
+//                final int mult = (int) (mult(w, values) * Math.pow(10, w.length));
+//                return mult ;
+//
+//            } else {
+//                return 0;
+//            }
+        }
+
+        private int mult(int[] w, int[] values) {
+            return IntStream.range(0, Math.min(w.length, values.length))
+                    .map(i -> w[i] * values[i])
+                    .sum();
+        }
+
+        private int[] shift(int[] w, int pos) {
+            int newW[] = new int[w.length - pos];
+            System.arraycopy(w, pos, newW, 0, w.length - pos );
+            return newW;
+        }
+
+        private int sign(Matcher m1, int pos) {
+            return "+".equals(m1.group(pos)) ? 0 : 1;
+        }
+
+        private int value(Matcher m, int pos) {
+            final String group = m.group(pos);
+
+            if (group == null) {return 0;}
+            else {
+                final int value = parseInt(group);
+                return value == 10 || value == 5 ? 1: value;
+            }
+        }
+    }
+
 
 }

@@ -18,7 +18,7 @@ public class AbacusNumber extends Number {
         this.ones = ones;
     }
 
-    public static AbacusNumber abacus(int value) {
+    public static AbacusNumber of(int value) {
         return new AbacusNumber(value);
     }
 
