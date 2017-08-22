@@ -2,7 +2,9 @@ package dbk.odf;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
+import dbk.rand.RandomLevel;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class SimpleGeneratorTest {
 
 
     @org.junit.Test
+    @Ignore
     public void testGenerate1_9() throws Exception {
 
         List<Lesson> lessons = new ArrayList<>();
@@ -50,7 +53,8 @@ public class SimpleGeneratorTest {
     }
 
 
-    @org.junit.Test
+    @Ignore
+    //@org.junit.Test
     public void testGenerate1_8_9() throws Exception {
 
         List<Lesson> lessons = new ArrayList<>();

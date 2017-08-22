@@ -80,6 +80,53 @@
                 </configuration>
             </plugin>
             <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>exec-maven-plugin</artifactId>-->
+                <!--<version>1.6.0</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<configuration>-->
+                            <!--<executable>soffice</executable>-->
+                            <!--<workingDirectory>exercises/level3</workingDirectory>-->
+                            <!--<arguments>-->
+                                <!--<argument>&#45;&#45;convert-to</argument>-->
+                                <!--<argument>pdf</argument>-->
+                                <!--<argument>abacus_formula_even.3.xls</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <executable>pdftk</executable>
+                            <workingDirectory>./exercises/level3/</workingDirectory>
+                            <arguments>
+                                <!--<argument>abacus_formula_even.3.pdf background watermarkL.pdf output abacus_formula_even.3.wm.pdf</argument>-->
+                                <argument>abacus_formula_even.3.pdf</argument>
+                                <argument>background</argument>
+                                <argument>watermarkL.pdf</argument>
+                                <argument>output</argument>
+                                <argument>abacus_formula_even.3.mvn.pdf</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--<plugin>-->
                 <!--<groupId>com.zenjava</groupId>-->
                 <!--<artifactId>javafx-maven-plugin</artifactId>-->
                 <!--<version>2.0</version>-->

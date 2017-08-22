@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import static dbk.odf.Digs.getValue;
 import static dbk.odf.Digs.possibleNegativeCarry;
 import static dbk.odf.Digs.possiblePositiveCarry;
+import static java.lang.Math.abs;
 
 /**
  * Created by dbk on 13-Sep-16.
@@ -183,9 +184,9 @@ public class SecondGenerator {
 
     }
 
-    private List<int[]> generateBackStepsToResult(Lesson lesson, int position, int[] result) {
+    static List<int[]> generateBackStepsToResult(Lesson lesson, int position, int[] result) {
 
-
+        Random r = RandomLevel.getR();
         if (position == 0) {
 
 
@@ -195,10 +196,10 @@ public class SecondGenerator {
 
             int[] firstPosStep = new int[result.length];
             int[] secondPosStep = new int[result.length];
-            boolean positiveAttempt = generateBackStepsToResultBySign(lesson, result, firstPosStep, secondPosStep, true);
+            boolean positiveAttempt = SecondGenerator.generateBackStepsToResultBySign(lesson, result, firstPosStep, secondPosStep, true);
             int[] firstNegStep = new int[result.length];
             int[] secondNegStep = new int[result.length];
-            boolean negativeAttmept = generateBackStepsToResultBySign(lesson, result, firstNegStep, secondNegStep, false);
+            boolean negativeAttmept = SecondGenerator.generateBackStepsToResultBySign(lesson, result, firstNegStep, secondNegStep, false);
             if (!negativeAttmept && !positiveAttempt) {
                 return Arrays.asList(result);
             }
@@ -234,7 +235,8 @@ public class SecondGenerator {
 
     }
 
-    private boolean generateBackStepsToResultBySign(Lesson lesson, int[] result, int[] firstStep, int[] secondStep, boolean sign) {
+    static boolean generateBackStepsToResultBySign(Lesson lesson, int[] result, int[] firstStep, int[] secondStep, boolean sign) {
+        Random r = RandomLevel.getR();
         int carry = 0;
         for (int i = 0; i < result.length; i++) {
             int resultValue = result[i] - (carry);
@@ -265,7 +267,7 @@ public class SecondGenerator {
             Tuple2<Integer, Integer> pair = pairs.get(r.nextInt(pairs.size()));
 
             int sumPair = pair.getA() + pair.getB();
-            carry = (sign && sumPair >= 10) ? 1 : (! sign && sumPair <= 10) ? -1 : 0;
+            carry = (sign && sumPair >= 10) ? 1 : (! sign && sumPair < 0) ? -1 : 0;
             firstStep[i] = pair.getA();
             secondStep[i] = pair.getB();
         }
@@ -371,7 +373,7 @@ public class SecondGenerator {
 //    }
 
 
-    private int getNextValue(Integer prevValue, List<Integer> pairs) {
+    private static int getNextValue(Integer prevValue, List<Integer> pairs) {
         //level.get(sum);
 
         //Integer index = r.nextInt(pairs.size());
@@ -423,7 +425,7 @@ public class SecondGenerator {
         }
     }
 
-    private int[] generateDirectStep(Lesson lesson, Settings currentSettings, List<int[]> steps, int digits) {
+    static int[] generateDirectStep(Lesson lesson, Settings currentSettings, List<int[]> steps, int digits) {
 
         int step[] = new int[1 + currentSettings.getExtensionDigit()];
         //Tuple2<int[], Integer> sumCarry
@@ -435,7 +437,7 @@ public class SecondGenerator {
         } else {
             sum = extSum;
         }
-        boolean sign = r.nextBoolean();
+        boolean sign = RandomLevel.getR().nextBoolean();
         int excludeZero = (steps.size() < currentSettings.getSteps()) ? 1 : 0;
         List<Integer> negative = lesson.getNegative(sum[0]);
 
@@ -458,32 +460,48 @@ public class SecondGenerator {
                     negative = negative.stream().filter(n -> (sum[0] + n) >= 0 + excludeZero).collect(Collectors.toList());
                     if (negative.isEmpty()) {
                         System.out.println("Error impossible find next negative and positive for " + Arrays.toString(sum));
-                        return new int[]{digits};
+                        return new int[digits];
                     }
                 } else if (negative == null) {
                     System.out.println("Error impossible find next negative and positive for " + Arrays.toString(sum));
-                    return new int[]{digits};
+                    return new int[digits];
                 }
             }
         }
 
 
+        return getStep(lesson, digits, step, sum, sign, excludeZero);
+    }
+
+    static int[] getStep(Lesson lesson, int digits, int[] step, int[] sum, boolean sign, int excludeZero) {
         int currentSum = 0;
         int currentCarry = 0;
         for (int i = 0; i < digits; i++) {
 
-            int prevSum = sum[i] + currentCarry;
+            int prevSum = sum[i] ;//todo remove carry
 
+            List<Integer> numbers;
+            if (sign) {
+                final int carry = currentCarry;
+                final List<Integer> positive = lesson.getPositive(prevSum);
+                numbers = positive.stream().filter(n-> n - carry >= 0).map(n -> n - carry).collect(Collectors.toList());
+            } else {
 
-            List<Integer> numbers = (sign) ? lesson.getPositive(prevSum) : lesson.getNegative(prevSum);
-            numbers = (numbers == null) ? Collections.emptyList() : numbers;
+                final int carry = currentCarry;
+                numbers = lesson.getNegative(prevSum).stream().filter(n-> n - carry <= 0).map(n -> n - carry).collect(Collectors.toList());
+            }
+            //numbers = (numbers == null) ? Collections.emptyList() : numbers;
             if (sign) {
                 if (!possiblePositiveCarry(sum, i + 1)) {
-                    numbers = numbers.stream().filter(n -> (prevSum + n) <= 9).collect(Collectors.toList());
+                    numbers = numbers.stream()
+                            .filter(n -> (prevSum + n) <= 9)
+                            .collect(Collectors.toList());
                 }
             } else {
                 if (!possibleNegativeCarry(sum, i + 1)) {
-                    numbers = numbers.stream().filter(n -> (prevSum + n) >= 0 + excludeZero).collect(Collectors.toList());
+                    numbers = numbers.stream()
+                            .filter(n -> (prevSum + n) >= 0 + excludeZero)
+                            .collect(Collectors.toList());
                 }
             }
 
@@ -495,9 +513,40 @@ public class SecondGenerator {
                 value = 0;
             }
 
-            currentSum = prevSum + value;
+            currentSum = prevSum + value + currentCarry;
             currentCarry = (currentSum >= 10) ? 1 : (currentSum < 0) ? -1 : 0;
             step[i] = value;
+        }
+        return step;
+    }
+
+    static int[] getStepFromHigh(Lesson lesson, int digits, int[] step, int[] sum, boolean sign, int excludeZero) {
+        int currentSum = 0;
+        int currentCarry = 0;
+
+        for (int dig = digits - 1; dig >= 0; dig--) {
+            int prevSum = sum[dig] ;
+            List<Integer> numbers;
+            if (sign) {
+                numbers = lesson.getPositive(prevSum);
+                int carry = currentCarry;
+                numbers = numbers.stream().filter(n-> (carry == 0) ? n + prevSum < 10 : n + prevSum >10).collect(Collectors.toList());
+            }
+
+            //if enable carry
+            if (dig > 1) {
+                if (sign) {
+                    final int prevLower = sum[dig - 1];
+                    final List<Integer> positives = lesson.getPositive(prevLower);
+                    final long carryCount = positives.stream().filter(n -> prevLower + n >= 10).count();
+                    boolean enableCarry  = RandomLevel.getR().nextDouble() > (double) carryCount / positives.size();
+                    currentCarry = (enableCarry) ? 1:0;
+
+                }
+            }
+
+
+    //        step[dig] = value;
         }
         return step;
     }
@@ -533,13 +582,13 @@ public class SecondGenerator {
         return digits;
     }
 
-    private Integer getRandom(List<Integer> list) {
-        int index = r.nextInt(list.size());
+    private static Integer getRandom(List<Integer> list) {
+        int index = RandomLevel.getR().nextInt(list.size());
         return list.get(index);
     }
 
 
-    private int[] getSecondObligatoryValue(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
+    private static int[] getSecondObligatoryValue(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
 
         int firstObligatory = prevStep[obligatoryDigit];
         List<Integer> secondObligatories = lesson.getObligatoryPair(firstObligatory);
@@ -569,8 +618,12 @@ public class SecondGenerator {
             if (i == obligatoryDigit) {
                 value = secondObligatory;
             } else {
-                if (sign && lesson.getPositive(prevStep[i]) != null) {
-                    value = getRandom(lesson.getPositive(prevStep[i]));
+                if (sign ) {
+                    if (lesson.getPositive(prevStep[i]).size() != 0) {
+                        value = getRandom(lesson.getPositive(prevStep[i]));
+                    } else {
+                        value = 0;
+                    }
                 } else {
                     List<Integer> negativePairs = lesson.getNegative(prevStep[i]);
 
@@ -599,7 +652,7 @@ public class SecondGenerator {
     }
 
     @Deprecated
-    private int[] getSecondObligatoryValueNotWork(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit) {
+    private static int[] getSecondObligatoryValueNotWork(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit) {
 
         int firstObligatory = prevStep[obligatoryDigit];
         List<Integer> secondObligatories = lesson.getObligatoryPair(prevStep[obligatoryDigit]);

@@ -3,7 +3,7 @@ package dbk.formula;
 /**
  * Created by denis on 27.04.17.
  */
-public class AbacusNumber extends Number {
+public class AbacusNumber extends Number implements Comparable<AbacusNumber>{
 
     private final boolean isFive;
     private final ONES ones;
@@ -169,6 +169,11 @@ public class AbacusNumber extends Number {
     @Override
     public double doubleValue() {
         return (isFive?5:0) + ones.ordinal();
+    }
+
+    @Override
+    public int compareTo(AbacusNumber o) {
+        return this.intValue() - o.intValue();
     }
 
     enum ONES{

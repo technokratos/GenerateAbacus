@@ -1,10 +1,8 @@
 package dbk.formula;
 
 import java.util.Arrays;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.lang.Math.max;
 
@@ -172,5 +170,9 @@ public class BigAbacusNumber extends Number {
 
     public BigResult minus(Integer arg) {
         return minus(of(arg));
+    }
+
+    public AbacusNumber get(int digit) {
+        return digits[digit];
     }
 }

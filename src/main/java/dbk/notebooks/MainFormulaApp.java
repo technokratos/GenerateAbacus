@@ -20,7 +20,7 @@ import java.util.List;
 public class MainFormulaApp {
 
     public static final int LEVEL = 2;
-    public static final Odd odd = Odd.ODD;
+    public static final Odd odd = Odd.EVEN;
     private static final String OUT_DIR = "exercises/level" + LEVEL + "/";
     private static final String TASKS_DIR = "tasks/level" + LEVEL + "/";
     public static final int SEEK = 2 * LEVEL + ((odd == Odd.ODD)? 1:0);

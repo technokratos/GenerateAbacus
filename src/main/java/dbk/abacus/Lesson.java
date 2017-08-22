@@ -73,7 +73,11 @@ public class Lesson {
         }
         if (pair >0) {
             addToMap(number, pair, positiveMap);
+        } else if (pair < 0){
+            addToMap(number, pair, negativeMap);
         } else {
+            //todo check how it works
+            addToMap(number, pair, positiveMap);
             addToMap(number, pair, negativeMap);
         }
     }
@@ -141,14 +145,24 @@ public class Lesson {
         }
     }
     public List<Integer> getPositive(Integer number) {
-        return positiveMap.get(number);
+        final List<Integer> numbers = positiveMap.get(number);
+        if (numbers == null) {
+            return Collections.emptyList();
+        } else {
+            return numbers;
+        }
     }
     public List<Integer> getPositiveKeys() {
         return new ArrayList<>(positiveMap.navigableKeySet());
     }
 
     public List<Integer> getNegative(Integer number) {
-        return negativeMap.get(number);
+        final List<Integer> numbers = negativeMap.get(number);
+        if (numbers == null) {
+            return Collections.emptyList();
+        } else {
+            return numbers;
+        }
     }
 
 

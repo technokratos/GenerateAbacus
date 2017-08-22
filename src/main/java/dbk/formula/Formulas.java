@@ -1,13 +1,11 @@
 package dbk.formula;
 
-import Expressions.Expression;
 import dbk.abacus.Tuple2;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static dbk.formula.AbacusNumber.of;
@@ -25,8 +23,11 @@ public class Formulas {
     //private final TreeSet<String> formulas = new TreeSet<>((o1, o2) -> o1.length() - o2.length() == 0? o1.compareTo(o2) : o1.length() - o2.length() );
     private final TreeSet<String> formulas = new TreeSet<>(new FormulaComparator());
     private final Map<String, List<Tuple2<Integer,Integer>>> formulaToOperands = new HashMap<>();
-    private final Map<Integer, Set<String>> firstOperandToFormula = new HashMap<>();
+    private final Map<Integer, Set<String>> numberToFormula = new HashMap<>();
 
+    private final Map<AbacusNumber, TreeSet<String>> numberPositiveFormulas = new HashMap<>();
+    private final Map<AbacusNumber, TreeSet<String>> numberNegativeFormulas = new HashMap<>();
+    private final Map<Tuple2<String, AbacusNumber>, TreeSet<AbacusNumber>> currentNumberToNext = new HashMap<>();
     private final String[][] table = new String[20][10];
 
     private final static Formulas instance = getFormulaTable();
@@ -57,9 +58,10 @@ public class Formulas {
         for (int i = 0; i <10 ; i++) {
             for (int j = 0; j < 10; j++) {
                 AbacusNumber first = of(i);
-                final AbacusResult plusResult = of(i).add(of(j));
+                final AbacusNumber second = of(j);
+                final AbacusResult plusResult = of(i).add(second);
                 AbacusNumber firstPlus = plusResult.getResult();
-                final AbacusResult minusResult = first.minus(of(j));
+                final AbacusResult minusResult = first.minus(second);
                 AbacusNumber firstMinus = minusResult.getResult();
 
 
@@ -80,16 +82,30 @@ public class Formulas {
                 Set<String> set = new HashSet<>();
                 set.add(plusFormula);
                 set.add(minusFomula);
-                formulas.firstOperandToFormula.merge(i, set, (oldValue, newValue) -> {
+                formulas.numberToFormula.merge(i, set, (oldValue, newValue) -> {
                     oldValue.addAll(set);
                     return oldValue;
                 });
 
-//                formulas.firstOperandToFormula.computeIfPresent(i,(integer, strings) -> {
+                final TreeSet<String> positiveFormulas = formulas.numberPositiveFormulas.computeIfAbsent(first, abacusNumber -> new TreeSet<>(new FormulaComparator()));
+                positiveFormulas.add(plusFormula);
+                final TreeSet<String> negativeFormulas = formulas.numberNegativeFormulas.computeIfAbsent(first, abacusNumber -> new TreeSet<>(new FormulaComparator()));
+                negativeFormulas.add(minusFomula);
+
+                final Tuple2<String, AbacusNumber> plusTuple = Tuple2.create(plusFormula, first);
+                final TreeSet<AbacusNumber> formulaAndNumber = formulas.currentNumberToNext
+                        .computeIfAbsent(plusTuple, t -> new TreeSet<>());
+                formulaAndNumber.add(second);
+                final Tuple2<String, AbacusNumber> minusTuple = Tuple2.create(minusFomula, first);
+                final TreeSet<AbacusNumber> minusFormulaAndNumber = formulas.currentNumberToNext
+                        .computeIfAbsent(minusTuple, t -> new TreeSet<>());
+                minusFormulaAndNumber.add(second);
+
+//                formulas.numberToFormula.computeIfPresent(i,(integer, strings) -> {
 //                    strings.add(plusFormula);
 //                    strings.add(minusFomula);
 //                    return strings;});
-//                formulas.firstOperandToFormula.computeIfAbsent(i, integer -> {
+//                formulas.numberToFormula.computeIfAbsent(i, integer -> {
 //                    Set<String> set = new HashSet<>();
 //                    set.add(plusFormula);
 //                    set.add(minusFomula);
@@ -171,14 +187,24 @@ public class Formulas {
     }
 
 
+    public Map<Tuple2<String, AbacusNumber>, TreeSet<AbacusNumber>> getCurrentNumberToNext() {
+        return currentNumberToNext;
+    }
 
+    public Map<AbacusNumber, TreeSet<String>> getNumberPositiveFormulas() {
+        return numberPositiveFormulas;
+    }
+
+    public Map<AbacusNumber, TreeSet<String>> getNumberNegativeFormulas() {
+        return numberNegativeFormulas;
+    }
 
     public List<Tuple2<Integer,Integer>> getOperandsForFormula(String formula) {
         return formulaToOperands.get(formula);
     }
 
     public Set<String> getFormulasForOperand(Integer operand) {
-        return firstOperandToFormula.get(operand);
+        return numberToFormula.get(operand);
     }
 
     public static class FormulaComparator implements Comparator<String>{

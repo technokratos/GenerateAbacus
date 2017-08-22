@@ -107,5 +107,15 @@ public class BigAbacusNumberTest {
         assertThat(overTen.getOperations(), Is.is(new String[]{"+10-5-3", "",  "+1"}));
     }
 
+    @Test
+    public void testAdd59_55() {
+
+        final BigResult overTen = new BigAbacusNumber(59)
+                .add(new BigAbacusNumber(55));
+
+        assertThat(overTen.getResult().intValue(), Is.is(new BigAbacusNumber(114).intValue()));
+        assertThat(overTen.getOperations(), Is.is(new String[]{"+10-5", "+10-5+1",  "+1"}));
+    }
+
 
 }
