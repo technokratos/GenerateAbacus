@@ -247,13 +247,13 @@ public class ExerciseWriter {
 //        }
 
         sheet.setColumnCount(7);
-        sheet.setColumnSize(0, 3000);
-        sheet.setColumnSize(1, 3000);
-        sheet.setColumnSize(2, 6000);
-        sheet.setColumnSize(3, 6000);
-        sheet.setColumnSize(4, 7000);
-        sheet.setColumnSize(5, 3500);
-        sheet.setColumnSize(6, 3500);
+        sheet.setColumnSize(0, 2050);//урок
+        sheet.setColumnSize(1, 2000);//дата
+        sheet.setColumnSize(2, 5000);//тема
+        sheet.setColumnSize(3, 2900);//д.з.
+        sheet.setColumnSize(4, 5100);//замечание
+        sheet.setColumnSize(5, 2500);//родители
+        sheet.setColumnSize(6, 2900);//инструктор
 
         int columnNumber = 0;
         int lastRow = 0;
@@ -267,7 +267,7 @@ public class ExerciseWriter {
         sheet.merge(columnNumber, lastRow, 0, 1);
         getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(CLASS_WORK.getText());
         sheet.merge(columnNumber, lastRow, 0, 1);
-        getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(HOME_WORK.getText());
+        getWrappedBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(HOME_WORK.getText());
         sheet.merge(columnNumber, lastRow, 0, 1);
         getBorderedBoldCell(sheet, columnNumber++, lastRow).setValue(COMMENTS.getText());
         sheet.merge(columnNumber, lastRow, 1, 0);
@@ -281,7 +281,7 @@ public class ExerciseWriter {
 
         //int firstWeek = (Book.EVEN == book)? 1 : 0;
 
-        final int rows = 3;
+        final int rows = 4;
         final int mergeRows = rows - 1;
 
         for(int i = 0; i< lessons.size(); i ++) {
@@ -350,7 +350,8 @@ public class ExerciseWriter {
             //getBorderedCell(sheet, 0, lastRowNumber).setValue(settings.description);
 
             Cell cellAt = sheet.getCellAt(FIRST_COLUMN, lastRowNumber);
-            cellAt.setValue(settings.description + " " + settings.description1);
+            final String description = settings.description;
+            cellAt.setValue(description + (description.endsWith(".") ?"":".") + "      " + settings.description1);
 
             Cell cellAt2 = sheet.getCellAt(FIRST_COLUMN + thirdTitleColumn, lastRowNumber);
             cellAt2.setValue(settings.description2);
@@ -383,6 +384,18 @@ public class ExerciseWriter {
         Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(borderBold, Style::setThinBorder);
         horStyleWithBorder.setBold();
         horStyleWithBorder.setHorStyleWithBorder();
+
+        cellAt.setStyle(horStyleWithBorder);
+        return cellAt;
+    }
+
+    private Cell getWrappedBorderedBoldCell(Sheet sheet, int column, int lastRowNumber) {
+        Cell cellAt = sheet.getCellAt(column, lastRowNumber);
+
+        Style horStyleWithBorder = cellAt.getSheet().getWorkbook().getStyle(borderBold, Style::setThinBorder);
+        horStyleWithBorder.setBold();
+        horStyleWithBorder.setHorStyleWithBorder();
+        horStyleWithBorder.setWrapped(true);
 
         cellAt.setStyle(horStyleWithBorder);
         return cellAt;

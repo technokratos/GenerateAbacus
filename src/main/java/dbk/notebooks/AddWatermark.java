@@ -8,6 +8,8 @@ import java.io.IOException;
 public class AddWatermark {
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        //sudo soffice --headless --convert-to pdf *.xls
+
         //sudo soffice --convert-to pdf abacus_formula_even.3.xls
         //soffice --print-to-file abacus_formula_even.3.xls //to ps file
         //ps2pdf any.ps

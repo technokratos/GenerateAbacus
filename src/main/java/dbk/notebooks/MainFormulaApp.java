@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class MainFormulaApp {
 
-    public static final int LEVEL = 2;
+    public static final int LEVEL = 3;
     public static final Odd odd = Odd.EVEN;
     private static final String OUT_DIR = "exercises/level" + LEVEL + "/";
     private static final String TASKS_DIR = "tasks/level" + LEVEL + "/";
@@ -28,8 +28,9 @@ public class MainFormulaApp {
     public static final PAGE_ORIENTATION PAGE = PAGE_ORIENTATION.PORTRAIT;
     public static final String TASK_NAME = "abacus_formula_" + odd.toString();
 
-    private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
-    private static final String outMarker = OUT_DIR + TASK_NAME+ "." + SEEK + ".marker.xls";
+    //private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
+    private static final String outfile = OUT_DIR + "уровень_" + LEVEL + "_" + ((odd == Odd.EVEN)?1:2) + "." + SEEK;
+    private static final String outMarker = outfile + ".marker.xls";
 
     public static final int LANDSCAPE_SERIES = 10;
     public static final int PORTRAIT_SERIES = 7;

@@ -11,6 +11,7 @@ public abstract class Style {
 
     public abstract void setFontSize(int size);
     public abstract void setBold();
+    public abstract void setWrapped(boolean wrapped);
     public abstract void alignmentCenter();
 
     public abstract void setBackgroundColor(Color lightGray) ;

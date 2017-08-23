@@ -52,6 +52,12 @@ public class PoiStyle extends Style {
     }
 
     @Override
+    public void setWrapped(boolean wrapped) {
+        final HSSFFont boldFont = workbook.createFont();
+        hssfStyle.setWrapText(true);
+    }
+
+    @Override
     public void setBackgroundColor(Color lightGray) {
 
         HSSFColor hssfColor = colorMap.get(lightGray);
