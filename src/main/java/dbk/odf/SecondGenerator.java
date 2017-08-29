@@ -48,9 +48,6 @@ public class SecondGenerator {
 
             for (Settings currentSettings : lesson.getSettings()) {
                 countSettings++;
-                int stepCount = currentSettings.getSteps();
-
-                int stepCountWithSum = stepCount + (addSum ? 1 : 0);
                 int seriesCount = currentSettings.getSeries();
 
 
@@ -74,7 +71,7 @@ public class SecondGenerator {
                     series.add(steps);
                     boolean invalid = lesson.getMarker().mark(steps, addSum);
                     if (invalid) {
-                        System.out.println("Lesson " + lesson.getTitle() + " settings " + countSettings
+                        System.out.println("Invalid steps. Lesson " + lesson.getTitle() + " settings " + countSettings
                         + " series " + seriesIndex + " steps " + steps);
                     }
 
@@ -324,7 +321,7 @@ public class SecondGenerator {
         return Arrays.asList(firstStep, secondStep);
     }
 
-//    private int[] getSecondObligatoryValue(Lesson level, int[] obligatoryStep, int digits, int obligatoryDigit, Settings currentSettings) {
+//    private int[] getSecondObligatoryValue(Lesson level, int[] obligatoryStep, int digits, int obligatoryDigit, Params currentSettings) {
 //        List<Integer> secondObligatories = level.getObligatoryPair(result[obligatoryDigit]);
 //        Integer secondObligatory = getRandom(secondObligatories);
 //        boolean positive = secondObligatory > 0;

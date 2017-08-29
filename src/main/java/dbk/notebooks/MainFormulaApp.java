@@ -9,6 +9,7 @@ import dbk.odf.OdfFormulaReader;
 import dbk.odf.SecondGenerator;
 import dbk.rand.RandomLevel;
 import dbk.texts.Texts;
+import dbk.trainer.TrainerWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,59 +20,60 @@ import java.util.List;
  */
 public class MainFormulaApp {
 
-    public static final int LEVEL = 3;
-    public static final Odd odd = Odd.EVEN;
-    private static final String OUT_DIR = "exercises/level" + LEVEL + "/";
-    private static final String TASKS_DIR = "tasks/level" + LEVEL + "/";
-    public static final int SEEK = 2 * LEVEL + ((odd == Odd.ODD)? 1:0);
+    public static void main(String[] args) throws IOException {
 
-    public static final PAGE_ORIENTATION PAGE = PAGE_ORIENTATION.PORTRAIT;
-    public static final String TASK_NAME = "abacus_formula_" + odd.toString();
+        Params params = new Params(args);
+        String fileName = params.taskDir + params.taskName + ".ods";
 
-    //private static final String outfile = OUT_DIR + TASK_NAME + "." + SEEK;
-    private static final String outfile = OUT_DIR + "уровень_" + LEVEL + "_" + ((odd == Odd.EVEN)?1:2) + "." + SEEK;
-    private static final String outMarker = outfile + ".marker.xls";
-
-    public static final int LANDSCAPE_SERIES = 10;
-    public static final int PORTRAIT_SERIES = 7;
-    public static final int LANDSCAPE_TASKS_ON_PAGE = 4;
-    public static final int PORTRAINT_TASKS_ON_PAGE = 6;
-
-    public static void main(String[] args){
-        RandomLevel.setR(SEEK);
-        String fileName = TASKS_DIR + TASK_NAME + ".ods";
-        OdfFormulaReader reader = new OdfFormulaReader(fileName);
-        List<Lesson> lessons = reader.read();
+        if (!params.isTrainer()) {
+            RandomLevel.setR(params.seek);
+            OdfFormulaReader reader = new OdfFormulaReader(fileName);
+            List<Lesson> lessons = reader.read();
 
 
-
-        initOrientation(PAGE, lessons);
-        List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons, 6);
-        Book book = reader.getBook();
-
-
-        SecondGenerator generator = new SecondGenerator(lessonsWithHomeWork);
-        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
+            initOrientation(params.page, lessons);
+            List<Lesson> lessonsWithHomeWork = generateHomeWork(lessons, 6);
+            Book book = reader.getBook();
 
 
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile , PAGE, false, lessons);
-        exerciseWriter.write();
-        ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , PAGE, true, lessons);
-        exerciseWriterWithAnswer.write();
+            SecondGenerator generator = new SecondGenerator(lessonsWithHomeWork);
+            List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
 
-        try {
-            final Process process = Runtime.getRuntime()
-                    .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outfile, outfile));
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            ExerciseWriter exerciseWriter = new ExerciseWriter(data, params.outFile, params.page, false, lessons);
+            exerciseWriter.write();
+            ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, params.outFile, params.page, true, lessons);
+            exerciseWriterWithAnswer.write();
+
+
+//        final Process process = Runtime.getRuntime()
+//                    .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outFile, outFile));
+
+            SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
+            markerWriter.write(params.outMarker);
+            System.out.println("already read");
+        } else {
+
+            generateTrainer(fileName, params);
         }
-        SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
-        markerWriter.write(outMarker);
-        System.out.println("already read");
     }
 
-    public static void addSum(boolean addSum, List<Lesson> lessons) {
-        lessons.forEach(l-> l.getSettings().forEach(settings -> settings.setAddSum(addSum)));
+    private static void generateTrainer(String fileName, Params params) throws IOException {
+        RandomLevel.setR(params.trainerSeek);
+        OdfFormulaReader reader = new OdfFormulaReader(fileName);
+        List<Lesson> lessons = reader.read();
+        Book book = reader.getBook();
+        lessons.forEach(level -> level.getSettings().forEach(s-> s.setAddSum(false)));
+        SecondGenerator generator = new SecondGenerator(lessons);
+        List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
+
+        TrainerWriter trainerWriter = new TrainerWriter(data, params.outTrainerDir);
+        trainerWriter.write();
+
+        SheetMarkerWriter markerWriter = new SheetMarkerWriter(data);
+        markerWriter.write(params.trainerMarkerFile);
+
+
     }
 
 
@@ -90,9 +92,9 @@ public class MainFormulaApp {
 
     public static void initOrientation(PAGE_ORIENTATION page, List<Lesson> lessons) {
         if (page == PAGE_ORIENTATION.PORTRAIT) {
-            lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(PORTRAIT_SERIES)));
+            lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(Params.PORTRAIT_SERIES)));
         } else {
-            lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(LANDSCAPE_SERIES)));
+            lessons.forEach(l-> l.getSettings().forEach(s-> s.setSeries(Params.LANDSCAPE_SERIES)));
         }
     }
 

@@ -500,7 +500,7 @@ public class SimpleGenerator {
         return firstValue;
     }
 
-//    private int[] getFirstObligatoryValue(List<Integer> firstNumbers, Settings settings, boolean allDigits) {
+//    private int[] getFirstObligatoryValue(List<Integer> firstNumbers, Params settings, boolean allDigits) {
 //        int[] firstValue = new int[settings.getExtensionDigit()];
 //        Integer firstIndex = r.nextInt(firstNumbers.size());
 //        ;

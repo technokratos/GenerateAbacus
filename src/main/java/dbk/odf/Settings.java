@@ -229,7 +229,7 @@ public class Settings {
 
     @Override
     public String toString() {
-        return "Settings{" +
+        return "Params{" +
                 "series=" + series +
                 ", steps=" + steps +
                 ", decimals=" + decimals +

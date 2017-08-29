@@ -25,7 +25,7 @@ public class AddWatermark {
         //pdftk ./exercises/level3/abacus_formula_even.3.pdf background watermarker.pdf output abacus_formula_even.3.wm.pdf
 
 //        final Process process = Runtime.getRuntime()
-//                .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outfile, outfile));
+//                .exec(String.format("pdftk %s.pdf background watermarkerp.pdf output %s.wm.pdf", outFile, outFile));
 //        process.waitFor();
 
     }

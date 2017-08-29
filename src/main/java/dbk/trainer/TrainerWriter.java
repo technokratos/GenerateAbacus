@@ -37,7 +37,9 @@ public class TrainerWriter {
                 for (List<Integer> steps: nestedList) {
                     String fileName = levelDir + "/a" + i+ ".txt";
                     FileWriter fileWriter = new FileWriter(fileName);
-                    steps.forEach(s -> {
+                    steps.stream()
+                            .limit(steps.size() - 1)
+                            .forEach(s -> {
                         try {
                             fileWriter.write(s.toString());
                             fileWriter.write("\n");

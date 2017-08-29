@@ -426,7 +426,7 @@ public class ExerciseWriter {
 
     private int countRows(List<Settings> settings) {
 //        int count = 0;
-//        for(Settings locSettings: settings) {
+//        for(Params locSettings: settings) {
 //            count+= locSettings.getSteps() + 2;
 //
 //        }

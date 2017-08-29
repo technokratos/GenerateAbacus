@@ -3,15 +3,14 @@ package dbk.notebooks;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.excel.SheetMarkerWriter;
-import dbk.odf.*;
+import dbk.odf.OdfReader;
+import dbk.odf.SecondGenerator;
 import dbk.rand.RandomLevel;
 
 import java.io.IOException;
 import java.util.List;
 
-import static dbk.notebooks.MainFormulaApp.PAGE;
 import static dbk.notebooks.MainFormulaApp.generateHomeWork;
-import static dbk.notebooks.MainFormulaApp.initOrientation;
 
 /**
  * Created by dbk on 18-Aug-16.
@@ -36,7 +35,7 @@ public class MainApp {
 
 
 
-        initOrientation(PAGE, lessons);
+//        initOrientation(page, lessons);
         List<Lesson> lessonsWithHomeWork=generateHomeWork(lessons, 6);
 //        List<Lesson> lessonsWithHomeWork = lessons;
 
@@ -45,10 +44,10 @@ public class MainApp {
         List<Tuple2<Lesson, List<List<List<Integer>>>>> data = generator.generate();
 
 
-        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile , PAGE, false, lessons);
-        exerciseWriter.write();
-        ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , PAGE, true, lessons);
-        exerciseWriterWithAnswer.write();
+//        ExerciseWriter exerciseWriter = new ExerciseWriter(data, outfile , page, false, lessons);
+//        exerciseWriter.write();
+//        ExerciseWriter exerciseWriterWithAnswer = new ExerciseWriter(data, outfile , page, true, lessons);
+//        exerciseWriterWithAnswer.write();
 
         try {
             final Process process = Runtime.getRuntime()
