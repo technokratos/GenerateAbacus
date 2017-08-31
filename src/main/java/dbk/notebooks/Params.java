@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameter;
 public class Params {
 
     @Parameter(names = "--trainer")
-    private boolean trainer;
+    private boolean trainer = false;
 
     @Parameter(names = "--level")
     public int level = 3;
