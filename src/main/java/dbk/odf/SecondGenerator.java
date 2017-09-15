@@ -294,7 +294,9 @@ public class SecondGenerator {
 
             maxObligatoryDigit = digits;
         }
-        int obligatoryDigit = r.nextInt(maxObligatoryDigit);
+        //todo if = max, than many error and negative results, with -1 error is absent, but simple exercises are present in the last series.
+        final int obligatoryDigit = maxObligatoryDigit - 1;
+        //int obligatoryDigit = r.nextInt(maxObligatoryDigit);
 
         int[] firstStep = new int[digits];  //todo
 
@@ -587,8 +589,8 @@ public class SecondGenerator {
 
     private static int[] getSecondObligatoryValue(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
 
-        int firstObligatory = prevStep[obligatoryDigit];
-        List<Integer> secondObligatories = lesson.getObligatoryPair(firstObligatory);
+//        int firstObligatory = prevStep[obligatoryDigit];
+//        List<Integer> secondObligatories = lesson.getObligatoryPair(firstObligatory);
         //TODO  неправильно возможность переноса считает
         //if (!possibleNegativeCarry(prevStep, obligatoryDigit + 1)) {
 //        if (!possibleNegativeCarry(prevStep, obligatoryDigit + 1)) {

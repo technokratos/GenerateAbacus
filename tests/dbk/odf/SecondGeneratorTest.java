@@ -1,6 +1,5 @@
 package dbk.odf;
 
-import com.sun.javafx.scene.control.skin.ListViewSkin;
 import dbk.abacus.Count;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
@@ -9,7 +8,6 @@ import dbk.formula.BigResult;
 import dbk.formula.Formulas;
 import dbk.rand.RandomLevel;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.groups.Tuple;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -20,7 +18,6 @@ import java.util.stream.Stream;
 import static dbk.odf.SecondGeneratorDirectTest.getLesson;
 import static dbk.odf.SecondGeneratorDirectTest.initWorkFormulas;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 /**
  * Created by dbk on 30.08.2016.
@@ -42,7 +39,7 @@ public class SecondGeneratorTest {
         int amountOfObligatoryFormulas = 2;
         for (int size = initSize; size < maxSize; size += amountOfObligatoryFormulas) {
 
-            Lesson lesson = getLesson(5, amountOfObligatoryFormulas * 3);
+            Lesson lesson = getLesson(5, amountOfObligatoryFormulas * 4, 1);
 
             List<String> workFormulas = initWorkFormulas(formulas, lesson, size);
 
@@ -123,7 +120,7 @@ public class SecondGeneratorTest {
         final Formulas formula = Formulas.getInstance();
         final TreeSet<String> formulas = Formulas.getFormulaTable().getFormulas();
 
-        Lesson lesson = getLesson(10, 1);
+        Lesson lesson = getLesson(10, 1, 1);
 
         long size = 12;
         List<String> workFormulas = initWorkFormulas(formulas, lesson, size);
@@ -159,10 +156,10 @@ public class SecondGeneratorTest {
         final Formulas formula = Formulas.getInstance();
         final TreeSet<String> formulas = Formulas.getFormulaTable().getFormulas();
 
-        Lesson lesson = getLesson(10, 1);
+        Lesson lesson = getLesson(10, 1, 4);
 
 
-        List<String> workFormulas = initWorkFormulas(formulas, lesson, 10);
+        List<String> workFormulas = initWorkFormulas(formulas, lesson, 30);
         formulas.stream()
                 .peek(workFormulas::add)
                 .flatMap(s -> formula.getOperandsForFormula(s).stream())
@@ -173,7 +170,7 @@ public class SecondGeneratorTest {
         List<String> failFormulas = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            final int[] expected = {i};
+            final int[] expected = {i,i,i};
             final List<int[]> arSteps = SecondGenerator.generateBackStepsToResult(lesson, 10, expected);
 
 
@@ -231,7 +228,7 @@ public class SecondGeneratorTest {
         final Formulas formula = Formulas.getInstance();
         final TreeSet<String> formulas = Formulas.getFormulaTable().getFormulas();
 
-        Lesson lesson = getLesson(10, 1);
+        Lesson lesson = getLesson(10, 1, 1);
 
         long size = 52;
         List<String> workFormulas = initWorkFormulas(formulas, lesson, size);

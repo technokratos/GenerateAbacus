@@ -41,7 +41,7 @@ public class SecondGeneratorDirectTest {
 
         for (int size = initSize; size <= maxSize; size += 2) {
 
-            Lesson lesson = getLesson(10, 20);
+            Lesson lesson = getLesson(10, 20, 1);
 
             List<String> workFormulas =  initWorkFormulas(formulas, lesson, size);
 
@@ -97,10 +97,10 @@ public class SecondGeneratorDirectTest {
         //System.out.println(failFormulas);
     }
 
-    static Lesson getLesson(int steps, int series) {
+    static Lesson getLesson(int steps, int series, int extensionDigit) {
         return new Lesson("test", Arrays.asList(new Settings(series, steps,
                 0, 0, "", "", "",
-                1, steps,
+                extensionDigit, steps,
                 true, new TreeSet<String>(), new TreeSet<>())));
     }
 
@@ -119,7 +119,7 @@ public class SecondGeneratorDirectTest {
         final Formulas formula = Formulas.getInstance();
         final TreeSet<String> formulas = Formulas.getFormulaTable().getFormulas();
 
-        Lesson lesson = getLesson(10, 1);
+        Lesson lesson = getLesson(10, 1, 1);
 
         long size = 28;
         List<String> workFormulas = initWorkFormulas(formulas, lesson, size);
