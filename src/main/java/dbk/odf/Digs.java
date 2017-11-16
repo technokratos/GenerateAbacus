@@ -83,9 +83,28 @@ public class Digs {
                 sum[i + 1] += carry;
             }
         }
-        //sum[length] += carry;
         return sum;
     }
+
+    public static int[] sumWithCut(List<int[]> path) {
+        int[] sum = sum(path);
+        int lastValuePosition = sum.length - 1;
+        int lastLengthPosition = path.get(path.size() - 1).length - 1;
+        for (int i = sum.length - 1 ; i >= lastLengthPosition; i--) {
+            if (sum[i] != 0) {
+                lastValuePosition = i;
+            }
+        }
+
+        if (lastValuePosition < sum.length - 1) {
+            int cutSum[] = new int[lastValuePosition + 1];
+            System.arraycopy(sum, 0, cutSum, 0, cutSum.length);
+            return cutSum;
+        } else {
+            return sum;
+        }
+    }
+
     public static Tuple2<int[], Integer> sumCarry(List<int[]> path) {
         int[] sum = sum(path);
         return  new Tuple2<>(Arrays.copyOfRange(sum, 0, sum.length - 1), sum[sum.length - 1]);

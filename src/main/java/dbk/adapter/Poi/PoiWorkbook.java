@@ -28,7 +28,7 @@ public class PoiWorkbook extends Workbook {
 
 
     public PoiWorkbook(String fileName) {
-//        workbook = HSSFWorkbook.create(InternalWorkbook.createWorkbook());
+//        workbook = HSSFWorkbook.of(InternalWorkbook.createWorkbook());
         HSSFWorkbook workbook = null;
 
         this.fileName = fileName;

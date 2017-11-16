@@ -11,7 +11,7 @@ public class Tuple2<A, B> implements Comparable<Tuple2<A,B>> {
     private final A a;
     private final B b;
 
-    public static final <A, B> Tuple2<A, B> create(A var0, B var1) {
+    public static final <A, B> Tuple2<A, B> of(A var0, B var1) {
         return new Tuple2(var0, var1);
     }
 

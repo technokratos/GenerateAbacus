@@ -138,7 +138,7 @@ public class SecondGenerator {
         } else {
             obligatoryPosition = r.nextInt(currentSettings.steps - 1);
         }
-        int[] digits = getDigitsForSteps(currentSettings);
+        int[] digits = getDigitsForSteps(r, currentSettings);
 
         List<int[]> obligatorySteps = new ArrayList<>(getObligatorySteps(lesson, currentSettings, digits[obligatoryPosition], obligatoryPosition == 0));
 
@@ -395,7 +395,7 @@ public class SecondGenerator {
 
     private List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
 
-        int[] digits = getDigitsForSteps(currentSettings);
+        int[] digits = getDigitsForSteps(r, currentSettings);
         List<int[]> steps = new ArrayList<>(currentSettings.steps + (addSum ? 1 : 0));
 
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
@@ -551,7 +551,7 @@ public class SecondGenerator {
     }
 
 
-    private int[] getDigitsForSteps(Settings settings) {
+    public static int[] getDigitsForSteps(Random r, Settings settings) {
         int[] digits = new int[settings.getSteps()];
 
         int extCount = settings.getExtensionCount();

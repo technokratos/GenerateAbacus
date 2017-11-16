@@ -64,7 +64,7 @@ public class GeneratorSteps {
 
             final List<String> filtered = formulas.stream().filter(f -> posFormulas.contains(f) || negFormulas.contains(f)).collect(Collectors.toList());
             final String formula = filtered.get(r.nextInt(filtered.size() - 1));
-            //F.getCurrentNumberToNext().get(Tuple2.create())
+            //F.getCurrentNumberToNext().get(Tuple2.of())
 
         }
         return null;

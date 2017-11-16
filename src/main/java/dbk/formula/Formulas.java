@@ -92,11 +92,11 @@ public class Formulas {
                 final TreeSet<String> negativeFormulas = formulas.numberNegativeFormulas.computeIfAbsent(first, abacusNumber -> new TreeSet<>(new FormulaComparator()));
                 negativeFormulas.add(minusFomula);
 
-                final Tuple2<String, AbacusNumber> plusTuple = Tuple2.create(plusFormula, first);
+                final Tuple2<String, AbacusNumber> plusTuple = Tuple2.of(plusFormula, first);
                 final TreeSet<AbacusNumber> formulaAndNumber = formulas.currentNumberToNext
                         .computeIfAbsent(plusTuple, t -> new TreeSet<>());
                 formulaAndNumber.add(second);
-                final Tuple2<String, AbacusNumber> minusTuple = Tuple2.create(minusFomula, first);
+                final Tuple2<String, AbacusNumber> minusTuple = Tuple2.of(minusFomula, first);
                 final TreeSet<AbacusNumber> minusFormulaAndNumber = formulas.currentNumberToNext
                         .computeIfAbsent(minusTuple, t -> new TreeSet<>());
                 minusFormulaAndNumber.add(second);
@@ -113,13 +113,13 @@ public class Formulas {
 //                });
 
                 final ArrayList<Tuple2<Integer, Integer>> value = new ArrayList<>();
-                value.add(Tuple2.create(i, j));
+                value.add(Tuple2.of(i, j));
                 formulas.formulaToOperands.merge(plusFormula, value, (oldValue, newValue) -> {
                     oldValue.addAll(value);
                     return oldValue;
                 });
                 final ArrayList<Tuple2<Integer, Integer>> valueMinus = new ArrayList<>();
-                valueMinus.add(Tuple2.create(i, -j));
+                valueMinus.add(Tuple2.of(i, -j));
                 formulas.formulaToOperands.merge(minusFomula, valueMinus, (oldValue, newValue) -> {
                     oldValue.addAll(newValue);
                     return oldValue;

@@ -23,10 +23,6 @@ public class Lesson {
     final TreeMap<Integer,List<Integer>> obligatoryMap = new TreeMap<>();
     final HashMap<Integer, List<Tuple2<Integer, Integer>>> resultMap = new HashMap<>();
     final TreeMap<Integer,List<Integer>> blockedMap = new TreeMap<>();
-    List<Double> probability = new ArrayList<>();
-
-    Random r = RandomLevel.getR();
-
 
     public Lesson(Lesson orig, String index) {
         this(orig.getTitle() + index, orig.settings);
@@ -36,7 +32,6 @@ public class Lesson {
         obligatoryMap.putAll(orig.obligatoryMap);
         resultMap.putAll(orig.resultMap);
         blockedMap.putAll(orig.blockedMap);
-        probability.addAll(orig.probability);
 
 
     }
@@ -204,7 +199,6 @@ public class Lesson {
                 ", availableMap=" + availableMap +
                 ", obligatoryMap=" + obligatoryMap +
                 ", resultMap=" + resultMap +
-                ", probability=" + probability +
                 '}';
     }
 
