@@ -1,9 +1,11 @@
-package dbk.odf;
+package dbk.generator;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import dbk.abacus.Pair;
+import dbk.abacus.Tuple2;
 
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * series
@@ -16,6 +18,9 @@ import java.util.TreeSet;
 //@NoArgsConstructor
 //@AllArgsConstructor
 public class Settings {
+
+    public static final Pattern PATTERN = Pattern.compile("(\\d)-(\\d)");
+
     public Settings() {
     }
 
@@ -31,10 +36,13 @@ public class Settings {
                 s.extensionCount,
                 s.addSum,
                 s.formula,
-                s.required);
+                s.required,
+                s.enableMinus,
+                s.multi);
     }
 
-    public Settings(int series, int steps, int decimals, int duplicate, String description, String description1, String description2, int extensionDigit, int extensionCount, boolean addSum, TreeSet<String> formula, TreeSet<String> required) {
+    public Settings(int series, int steps, int decimals, int duplicate, String description, String description1, String description2, int extensionDigit, int extensionCount, boolean addSum, TreeSet<String> formula, TreeSet<String> required,
+                    boolean enableMinus, Multi multi) {
         this.series = series;
         this.steps = steps;
         this.decimals = decimals;
@@ -47,6 +55,8 @@ public class Settings {
         this.addSum = addSum;
         this.formula = formula;
         this.required = required;
+        this.enableMinus = enableMinus;
+        this.multi = multi;
     }
 
     int series = 10;
@@ -60,11 +70,11 @@ public class Settings {
      */
     int duplicate = 0;
     //Урок
-    String description = "";
+    public String description = "";
     //Тема
-    String description1 = "";
+    public String description1 = "";
     //Домашняя работа
-    String description2 = "";
+    public String description2 = "";
 
     /**
      * количество дополнительных знаков
@@ -76,8 +86,14 @@ public class Settings {
     private int extensionCount;
     private boolean addSum = false;
 
+    private boolean enableMinus = false;
+
+    Multi multi = new Multi();
+
     private TreeSet<String> formula = new TreeSet<>();
     private TreeSet<String> required = new TreeSet<>();
+
+
 
     public int getSeries() {
         return series;
@@ -161,10 +177,40 @@ public class Settings {
                 case "required":
                     this.required.add(value);
                     break;
+                case "enableMinus":
+                    this.enableMinus = Boolean.valueOf(value);
+                    break;
+                case "firstMultiDigits":
+                    multi.firstMultiDigits = Integer.parseInt(value);
+                case "secondMultiDigits":
+                    multi.secondMultiDigits = Integer.parseInt(value);
+                            break;
+                case "firstMultiRange":
+                    multi.firstMultiRange = getRange(value);
+                case "secondMultiRange" :
+                    multi.secondMultiRange = getRange(value);
+                case "multiColumns" :
+                    multi.multiColumns = Integer.parseInt(value);
+                    break;
+                case "multiRows":
+                    multi.multiRows =Integer.parseInt(value);
+                    break;
+
             }
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private Tuple2<Integer, Integer> getRange(String value) {
+        Matcher matcher = PATTERN.matcher(value);
+        Tuple2<Integer, Integer> range;
+        if (matcher.find()) {
+            range = Pair.of( Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+        } else {
+            throw new IllegalArgumentException("Illegal value for range "  + value);
+        }
+        return range;
     }
 
     public Integer getExtensionCount() {
@@ -229,7 +275,7 @@ public class Settings {
 
     @Override
     public String toString() {
-        return "Params{" +
+        return "Settings{" +
                 "series=" + series +
                 ", steps=" + steps +
                 ", decimals=" + decimals +
@@ -240,6 +286,31 @@ public class Settings {
                 ", extensionDigit=" + extensionDigit +
                 ", extensionCount=" + extensionCount +
                 ", addSum=" + addSum +
+                ", enableMinus=" + enableMinus +
+                ", multi=" + multi +
+                ", formula=" + formula +
+                ", required=" + required +
                 '}';
+    }
+
+    class Multi {
+        private int firstMultiDigits = -1;
+        private int secondMultiDigits = -1;
+        private Tuple2<Integer, Integer> firstMultiRange = null;
+        private Tuple2<Integer, Integer> secondMultiRange = null;
+        private int multiColumns = -1;
+        private int multiRows = -1;
+
+        @Override
+        public String toString() {
+            return "Multi{" +
+                    "firstMultiDigits=" + firstMultiDigits +
+                    ", secondMultiDigits=" + secondMultiDigits +
+                    ", firstMultiRange=" + firstMultiRange +
+                    ", secondMultiRange=" + secondMultiRange +
+                    ", multiColumns=" + multiColumns +
+                    ", multiRows=" + multiRows +
+                    '}';
+        }
     }
 }

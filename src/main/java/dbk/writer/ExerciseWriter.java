@@ -1,8 +1,8 @@
-package dbk.odf;
-import dbk.abacus.Book;
+package dbk.writer;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
 import dbk.adapter.*;
+import dbk.generator.Settings;
 import dbk.notebooks.MainFormulaApp;
 import dbk.texts.Texts;
 

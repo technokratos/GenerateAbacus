@@ -3,8 +3,8 @@ package dbk.trainer;
 import dbk.abacus.Book;
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
-import dbk.odf.OdfReader;
-import dbk.odf.SecondGenerator;
+import dbk.readers.OdfReader;
+import dbk.generator.SecondGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;

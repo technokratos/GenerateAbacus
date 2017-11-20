@@ -1,6 +1,6 @@
 package dbk.abacus;
 
-import dbk.odf.Digs;
+import dbk.generator.Digs;
 
 import java.util.*;
 import java.util.List;

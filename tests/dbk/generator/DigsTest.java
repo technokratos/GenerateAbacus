@@ -1,11 +1,12 @@
-package dbk.odf;
+package dbk.generator;
 
+import dbk.generator.Digs;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-import static dbk.odf.Digs.*;
+import static dbk.generator.Digs.*;
 
 /**
  * Created by dbk on 13-Sep-16.

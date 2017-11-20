@@ -1,26 +1,29 @@
-package dbk.odf;
+package dbk.readers;
 
 
 import dbk.abacus.Book;
 import dbk.abacus.Lesson;
+import dbk.formula.Formulas;
+import dbk.generator.Settings;
 import org.jopendocument.dom.spreadsheet.MutableCell;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
 
-
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by dbk on 19-Aug-16.
  */
-public class OdfReader {
+public class OdfFormulaReader {
 
     public static final int ATTEMPT_LIMIT = 10;
     private final String fileName;
     SpreadSheet sheet;
-        static int RED = -65536;//0xFF0000
+    static int RED = -65536;//0xFF0000
     static int GREEN = -16732080;//0x00B050
     public static int BLUE = -16748352;//0x0070C0
     ArrayList<Lesson> lessons = new ArrayList<>();
@@ -30,7 +33,7 @@ public class OdfReader {
     private Book book = Book.ODD;
 
 
-    public OdfReader(String fileName) {
+    public OdfFormulaReader(String fileName) {
         this.fileName = fileName;
         SpreadSheet spreadsheet = null;
         try {
@@ -55,45 +58,21 @@ public class OdfReader {
             Lesson lesson = readSheetWithSettings(sheet);
 
             lessons.add(lesson);
-            boolean foundData = false;
-            Integer headerRow = null;
-            for (int r = 0; r < sheet.getRowCount(); r++) {
 
-                boolean found = false;
-                MutableCell<SpreadSheet> firstCellInRow = sheet.getCellAt(0, r);
-                if (headerRow == null) {
-                    if ("data".equals(firstCellInRow.getValue())) {
-                        headerRow = r;
-                    } else {
-                        continue;
-                    }
-                }
-                for (int c = 1; c < sheet.getColumnCount(); c++) {
-                    MutableCell<SpreadSheet> cell = sheet.getCellAt(c, r);
-                    if (cell != null && cell.getValue() != null && !cell.getValue().toString().isEmpty()) {
-                        MutableCell headerCell = sheet.getCellAt(c, headerRow);
-                        if (cell.getStyle().getBackgroundColor().getRGB() == GREEN) {
-                            lesson.put(getValue(headerCell), getValue(firstCellInRow));
-                        } else if (cell.getStyle().getBackgroundColor().getRGB() == BLUE) {
-                            lesson.put(getValue(headerCell), getValue(firstCellInRow), true);
-                        } else if (cell.getStyle().getBackgroundColor().getRGB() == RED) {
-                            lesson.putBlocked(getValue(headerCell), getValue(firstCellInRow));
-                        }
+            final TreeSet<String> formulas = lesson.getSettings().iterator().next().getFormula();
+            final Formulas formula = Formulas.getInstance();
 
-                        //System.out.print(getValue(cell) + " " + backgroundColor.getRGB() +  "!");
-                        found = true;
-                    } else {
-                        if (c > 0) {
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    break;
-                }
-                //System.out.println();
+            formulas.stream()
+                    .flatMap(s -> formula.getOperandsForFormula(s).stream())
+                    .forEach(t -> {
+                        lesson.put(t.getA(), t.getB());
+                    });
 
-            }
+            lesson.getSettings().iterator().next().getRequired()
+                    .stream()
+                    .flatMap(s -> formula.getOperandsForFormula(s).stream())
+                    .forEach(t -> lesson.put(t.getA(), t.getB(), true));
+
 
         }
 
@@ -111,14 +90,19 @@ public class OdfReader {
     private Lesson readSheetWithSettings(Sheet sheet) {
 
         List<Settings> settings = new ArrayList<>();
-        ITERATE_SETTINGS: for (int r = 0; r < sheet.getRowCount(); r++) {
+        ITERATE_SETTINGS:
+        for (int r = 0; r < sheet.getRowCount(); r++) {
             boolean found = false;
             MutableCell<SpreadSheet> firstCellInRow = sheet.getCellAt(0, r);
-            String settingsName = firstCellInRow.getValue() != null ? firstCellInRow.getValue().toString(): null;
+            String settingsName = firstCellInRow.getValue() != null ? firstCellInRow.getValue().toString() : null;
             System.out.println("Start read row " + r + " settings name " + settingsName);
             if ("data".equals(settingsName)) {
                 break;
             }
+            if (settingsName.isEmpty()) {
+                break;
+            }
+
 
             for (int c = 1; c < sheet.getColumnCount(); c++) {
                 MutableCell<SpreadSheet> cell = sheet.getCellAt(c, r);
@@ -126,9 +110,9 @@ public class OdfReader {
                 //???? ?? ?????? ????
                 if (value != null && !value.toString().isEmpty()) {
                     final Settings locSettings;
-                    if (settings.size()>= c) {
+                    if (settings.size() >= c) {
                         locSettings = settings.get(c - 1);
-                        System.out.println("Get settings by c " + c + " by index " + (c -1 ));
+                        System.out.println("Get settings by c " + c + " by index " + (c - 1));
                     } else {
                         locSettings = new Settings();
                         settings.add(locSettings);
@@ -147,7 +131,6 @@ public class OdfReader {
         System.out.println(lesson);
         return lesson;
     }
-
 
 
     private Integer getValue(MutableCell headerCell) {

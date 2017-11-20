@@ -1,8 +1,6 @@
 package dbk.adapter.Poi;
 
 import dbk.adapter.Style;
-import dbk.adapter.Workbook;
-import dbk.odf.ExerciseWriter;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -10,7 +8,6 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 
-import java.awt.*;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;

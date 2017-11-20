@@ -3,14 +3,7 @@ package dbk.adapter.Poi;
 import dbk.adapter.Cell;
 import dbk.adapter.Sheet;
 import dbk.adapter.Style;
-import dbk.adapter.Workbook;
-import dbk.odf.ExerciseWriter;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.CellStyle;
-
-import java.awt.*;
 
 /**
  * Created by dbk on 04-Oct-16.

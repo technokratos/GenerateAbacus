@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.generator;
 
 import dbk.abacus.Count;
 import dbk.abacus.Lesson;
@@ -15,8 +15,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dbk.odf.SecondGeneratorDirectTest.getLesson;
-import static dbk.odf.SecondGeneratorDirectTest.initWorkFormulas;
+import static dbk.generator.SecondGeneratorDirectTest.getLesson;
+import static dbk.generator.SecondGeneratorDirectTest.initWorkFormulas;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.generator;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
@@ -7,9 +7,9 @@ import dbk.rand.RandomLevel;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static dbk.odf.Digs.getValue;
-import static dbk.odf.Digs.possibleNegativeCarry;
-import static dbk.odf.Digs.possiblePositiveCarry;
+import static dbk.generator.Digs.getValue;
+import static dbk.generator.Digs.possibleNegativeCarry;
+import static dbk.generator.Digs.possiblePositiveCarry;
 import static java.lang.Math.abs;
 
 /**
@@ -323,53 +323,7 @@ public class SecondGenerator {
         return Arrays.asList(firstStep, secondStep);
     }
 
-//    private int[] getSecondObligatoryValue(Lesson level, int[] obligatoryStep, int digits, int obligatoryDigit, Params currentSettings) {
-//        List<Integer> secondObligatories = level.getObligatoryPair(result[obligatoryDigit]);
-//        Integer secondObligatory = getRandom(secondObligatories);
-//        boolean positive = secondObligatory > 0;
-//
-//        generateDirectStep(level, currentSettings, Arrays.asList(obligatoryStep), digits );
-//
-//        return new int[0];
-//    }
 
-
-//    private int[] getSecondObligatoryValue(Lesson level, int[] result, int digits, int obligatoryDigit) {
-//        List<Integer> secondObligatories = level.getObligatoryPair(result[obligatoryDigit]);
-//        Integer secondObligatory = getRandom(secondObligatories);
-//        boolean positive = secondObligatory >0;
-//
-//
-//        int carry = 0;
-//        int[] nextValue = new int[result.length];
-//        for (int i = 0; i < digits; i++) {
-//
-//            int prevValueWithCarryCorrect = result[i] - carry;
-//            int value;
-//            if (i == obligatoryDigit) {
-//                List<Integer> obligatoryOperands = level.getObligatoryPair(prevValueWithCarryCorrect);
-//                List<Integer> filtered = obligatoryOperands.stream().filter(o -> (positive && o >= 0) || (!positive && o <= 0)).collect(Collectors.toList());
-//
-//                value = getNextValue(prevValueWithCarryCorrect, filtered);
-//            } else {
-//                ArrayList<Integer> pairs = (ArrayList<Integer>) ((positive) ? level.getPositive(prevValueWithCarryCorrect) : level.getNegative(prevValueWithCarryCorrect));
-//                value = getNextValue(prevValueWithCarryCorrect, pairs);
-//            }
-//            value += carry;
-//            if (value >= 10) {
-//                value -= 10;
-//                carry = 1;
-//            } else if (value < 0) {
-//                value += 10;
-//                carry = -1;
-//            }
-//            nextValue[i] = value;
-//
-//
-//        }
-//
-//        return nextValue;
-//    }
 
 
     private static int getNextValue(Integer prevValue, List<Integer> pairs) {
@@ -483,11 +437,17 @@ public class SecondGenerator {
             if (sign) {
                 final int carry = currentCarry;
                 final List<Integer> positive = lesson.getPositive(prevSum);
-                numbers = positive.stream().filter(n-> n - carry >= 0).map(n -> n - carry).collect(Collectors.toList());
+                numbers = positive.stream()
+                        .filter(n-> n - carry >= 0)
+                        .map(n -> n - carry)
+                        .collect(Collectors.toList());
             } else {
 
                 final int carry = currentCarry;
-                numbers = lesson.getNegative(prevSum).stream().filter(n-> n - carry <= 0).map(n -> n - carry).collect(Collectors.toList());
+                numbers = lesson.getNegative(prevSum).stream()
+                        .filter(n-> n - carry <= 0)
+                        .map(n -> n - carry)
+                        .collect(Collectors.toList());
             }
             //numbers = (numbers == null) ? Collections.emptyList() : numbers;
             if (sign) {
@@ -515,37 +475,6 @@ public class SecondGenerator {
             currentSum = prevSum + value + currentCarry;
             currentCarry = (currentSum >= 10) ? 1 : (currentSum < 0) ? -1 : 0;
             step[i] = value;
-        }
-        return step;
-    }
-
-    static int[] getStepFromHigh(Lesson lesson, int digits, int[] step, int[] sum, boolean sign, int excludeZero) {
-        int currentSum = 0;
-        int currentCarry = 0;
-
-        for (int dig = digits - 1; dig >= 0; dig--) {
-            int prevSum = sum[dig] ;
-            List<Integer> numbers;
-            if (sign) {
-                numbers = lesson.getPositive(prevSum);
-                int carry = currentCarry;
-                numbers = numbers.stream().filter(n-> (carry == 0) ? n + prevSum < 10 : n + prevSum >10).collect(Collectors.toList());
-            }
-
-            //if enable carry
-            if (dig > 1) {
-                if (sign) {
-                    final int prevLower = sum[dig - 1];
-                    final List<Integer> positives = lesson.getPositive(prevLower);
-                    final long carryCount = positives.stream().filter(n -> prevLower + n >= 10).count();
-                    boolean enableCarry  = RandomLevel.getR().nextDouble() > (double) carryCount / positives.size();
-                    currentCarry = (enableCarry) ? 1:0;
-
-                }
-            }
-
-
-    //        step[dig] = value;
         }
         return step;
     }
@@ -650,96 +579,5 @@ public class SecondGenerator {
         return step;
     }
 
-    @Deprecated
-    private static int[] getSecondObligatoryValueNotWork(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit) {
-
-        int firstObligatory = prevStep[obligatoryDigit];
-        List<Integer> secondObligatories = lesson.getObligatoryPair(prevStep[obligatoryDigit]);
-        Integer secondObligatory = getRandom(secondObligatories);
-        boolean sign = secondObligatory >= 0;
-
-        int step[] = new int[prevStep.length];
-        //Tuple2<int[], Integer> sumCarry
-        int[] sum = prevStep;
-
-
-        List<Integer> negative = lesson.getNegative(sum[0]);
-        //??????? ???????? ?? ???????????? ?????, ???? ???? ? ?????? ???????? ?? ????????
-        if (!sign && !possibleNegativeCarry(sum, 1) && negative != null) {
-            negative = negative.stream().filter(n -> (sum[0] + n) >= 0).collect(Collectors.toList());
-            if (negative.isEmpty()) {
-                System.out.println("ERROR! negative for " + firstObligatory + "  is empty prevStep " + Arrays.toString(prevStep));
-            }
-        } else if (negative == null) {
-            System.out.println("ERROR! negative for " + firstObligatory + "  is null prevStep " + Arrays.toString(prevStep));
-        }
-
-        List<Integer> positive = lesson.getPositive(sum[0]);
-        //???????? ???????? ?? ???????????? ???? ???? ?????????? ? ??????? ??????? ??????.
-        if (sign && !possiblePositiveCarry(sum, 1)) {
-            positive = positive.stream().filter(n -> (sum[0] + n) <= 9).collect(Collectors.toList());
-            if (positive.isEmpty()) {
-                System.out.println("ERROR! positive for " + firstObligatory + "  is empty prevStep " + Arrays.toString(prevStep));
-                if (!possibleNegativeCarry(sum, 1) && negative != null) {
-                    negative = negative.stream().filter(n -> (sum[0] + n) >= 0).collect(Collectors.toList());
-                    if (negative.isEmpty()) {
-                        System.out.println("ERROR! positive for " + firstObligatory + "  is empty prevStep " + Arrays.toString(prevStep));
-                        return new int[]{digits};
-                    }
-                } else if (negative == null) {
-                    System.out.println("Error impossible find next negative and positive for " + Arrays.toString(sum));
-                    return new int[]{digits};
-                }
-            }
-        }
-
-
-        List<Integer> obligatoryKeyNumbers = lesson.getObligatoryKeyNumbers();
-        Map<Integer, List<Integer>> obligatorySigned = new HashMap<>();
-        for (Integer key : obligatoryKeyNumbers) {
-            for (Integer pair : lesson.getObligatoryPair(key)) {
-                if (sign && pair >= 0 || !sign && pair <= 0)
-                    Lesson.addToMap(key, pair, obligatorySigned);
-            }
-        }
-        List<Integer> keys = new ArrayList<>(obligatorySigned.keySet());
-        lesson.getObligatoryPair(getRandom(obligatoryKeyNumbers));
-        int currentSum = 0;
-        int currentCarry = 0;
-        for (int i = 0; i < digits; i++) {
-
-            int prevSum = sum[i] + currentCarry;
-
-
-            List<Integer> numbers = (sign) ? lesson.getPositive(prevSum) : lesson.getNegative(prevSum);
-            numbers = (numbers == null) ? Collections.emptyList() : numbers;
-            if (sign) {
-                if (!possiblePositiveCarry(sum, i + 1)) {
-                    numbers = numbers.stream().filter(n -> (prevSum + n) <= 9).collect(Collectors.toList());
-                }
-            } else {
-                if (!possibleNegativeCarry(sum, i + 1)) {
-                    numbers = numbers.stream().filter(n -> (prevSum + n) >= 0).collect(Collectors.toList());
-                }
-            }
-
-            int value;
-            if (i == obligatoryDigit) {
-                Integer key = getRandom(keys);
-                value = getRandom(obligatorySigned.get(key));
-            } else {
-                if (!numbers.isEmpty()) {
-                    value = getRandom(numbers);
-                } else {
-                    value = 0;
-                }
-            }
-
-            currentSum = prevSum + value;
-            currentCarry = (currentSum >= 10) ? 1 : (currentSum < 0) ? -1 : 0;
-            step[i] = value;
-        }
-        return step;
-    }
 
 }

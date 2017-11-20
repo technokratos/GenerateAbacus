@@ -1,13 +1,12 @@
 package dbk.abacus;
 
 import dbk.formula.Formulas;
-import dbk.odf.Settings;
+import dbk.generator.Settings;
 import dbk.rand.RandomLevel;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
@@ -87,6 +86,7 @@ public class ProbabilisticLessonTest {
     }
 
     @Test
+    @Ignore
     public void pairToStepTest16__7() {
         Pair[] pairs = new Pair[] {new Pair(6, -7, 0)};//impossible 0
 
@@ -112,7 +112,7 @@ public class ProbabilisticLessonTest {
         return new Settings(series, steps,
                     0, 0, "", "", "",
                     extensionDigit, steps,
-                    true, new TreeSet<String>(), new TreeSet<>());
+                    true, new TreeSet<String>(), new TreeSet<>(), false, null);
     }
 
 }

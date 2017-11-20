@@ -1,9 +1,8 @@
 package dbk.abacus;
 
 import dbk.formula.Formulas;
-import dbk.odf.Digs;
-import dbk.odf.SecondGenerator;
-import dbk.odf.Settings;
+import dbk.generator.Digs;
+import dbk.generator.Settings;
 import dbk.rand.RandomLevel;
 
 import java.util.*;

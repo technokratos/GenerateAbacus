@@ -1,4 +1,4 @@
-package dbk.excel;
+package dbk.writer;
 
 import dbk.abacus.*;
 import dbk.adapter.*;

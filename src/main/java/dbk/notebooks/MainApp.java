@@ -2,9 +2,9 @@ package dbk.notebooks;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
-import dbk.excel.SheetMarkerWriter;
-import dbk.odf.OdfReader;
-import dbk.odf.SecondGenerator;
+import dbk.writer.SheetMarkerWriter;
+import dbk.readers.OdfReader;
+import dbk.generator.SecondGenerator;
 import dbk.rand.RandomLevel;
 
 import java.io.IOException;

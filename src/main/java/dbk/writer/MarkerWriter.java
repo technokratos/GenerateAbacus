@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.writer;
 
 import dbk.abacus.Count;
 import dbk.abacus.Lesson;

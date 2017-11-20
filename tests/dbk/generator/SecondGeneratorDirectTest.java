@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.generator;
 
 import dbk.abacus.Count;
 import dbk.abacus.Lesson;
@@ -6,6 +6,9 @@ import dbk.abacus.Tuple2;
 import dbk.formula.BigAbacusNumber;
 import dbk.formula.BigResult;
 import dbk.formula.Formulas;
+import dbk.generator.Digs;
+import dbk.generator.SecondGenerator;
+import dbk.generator.Settings;
 import dbk.rand.RandomLevel;
 import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
@@ -101,7 +104,7 @@ public class SecondGeneratorDirectTest {
         return new Lesson("test", Arrays.asList(new Settings(series, steps,
                 0, 0, "", "", "",
                 extensionDigit, steps,
-                true, new TreeSet<String>(), new TreeSet<>())));
+                true, new TreeSet<String>(), new TreeSet<>(), false, null)));
     }
 
 

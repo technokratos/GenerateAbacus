@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.generator;
 
 import dbk.abacus.Tuple2;
 

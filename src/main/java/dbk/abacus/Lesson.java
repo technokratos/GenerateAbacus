@@ -1,7 +1,6 @@
 package dbk.abacus;
 
-import dbk.odf.Settings;
-import dbk.rand.RandomLevel;
+import dbk.generator.Settings;
 
 import java.util.*;
 import java.util.stream.Collectors;

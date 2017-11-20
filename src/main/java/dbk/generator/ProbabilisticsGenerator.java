@@ -1,4 +1,4 @@
-package dbk.odf;
+package dbk.generator;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
@@ -7,7 +7,7 @@ import dbk.rand.RandomLevel;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static dbk.odf.Digs.*;
+import static dbk.generator.Digs.*;
 
 /**
  * Created by dbk on 13-Sep-16.
