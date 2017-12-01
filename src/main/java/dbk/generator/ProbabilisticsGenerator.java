@@ -108,7 +108,7 @@ public class ProbabilisticsGenerator {
         int[] digits = getDigitsForSteps(currentSettings);
         List<int[]> steps = new ArrayList<>(currentSettings.steps + 1);
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
-        steps.add(Digs.sum(steps));
+        steps.add(Digs.sumSimple(steps));
         return Digs.getValue(steps);
     }
 
@@ -136,7 +136,7 @@ public class ProbabilisticsGenerator {
 
 
         final int[] sum;
-        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sum(steps);
+        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sumSimple(steps);
         if (digits >= extSum.length) {
             sum = new int[digits];
             System.arraycopy(extSum,0, sum, 0, extSum.length );

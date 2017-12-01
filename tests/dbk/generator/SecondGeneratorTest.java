@@ -105,9 +105,6 @@ public class SecondGeneratorTest {
     }
 
 
-
-
-
     /**
      * Expecting empty but was:<["error operation for result: {result={digits=[[0 + 3], [0 + 3]]}, operations=[-5, -5+2]}, next step : -35, prevSum: 68, step : 4, size : 12 ",
      */
@@ -134,14 +131,14 @@ public class SecondGeneratorTest {
                 });
 
 
-        final int[] prevSumArray = {9, 5};
+        final Step prevSumArray = Step.of(new int[]{9, 5});
         RandomLevel.setR(162531289283012L);
-        final int[] nextStep = SecondGenerator.generateDirectStep(lesson,
+        final Step nextStep = SecondGenerator.generateDirectStep(lesson,
                 lesson.getSettings().iterator().next(),
                 Arrays.asList(prevSumArray),
                 2);
-        final int value = Digs.getValue(nextStep);
-        final int prevSum = Digs.getValue(prevSumArray);
+        final int value = nextStep.getValue();
+        final int prevSum = prevSumArray.getValue();
         final BigResult bigResult = BigAbacusNumber.of(prevSum).add(value);
 
         assertThat(bigResult.getResult().intValue()).isEqualTo(prevSum + value);
@@ -170,11 +167,11 @@ public class SecondGeneratorTest {
         List<String> failFormulas = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            final int[] expected = {i,i,i};
-            final List<int[]> arSteps = SecondGenerator.generateBackStepsToResult(lesson, 10, expected);
+            final Step expected = Step.of(new int[]{i, i, i});
+            final List<Step> arSteps = SecondGenerator.generateBackStepsToResult(lesson, 10, expected);
 
 
-            final List<Integer> steps = arSteps.stream().map(Digs::getValue).collect(Collectors.toList());
+            final List<Integer> steps = arSteps.stream().map(Step::getValue).collect(Collectors.toList());
 
             BigAbacusNumber currentNumber = new BigAbacusNumber(steps.iterator().next());
             BigResult bigResult = null;
@@ -198,28 +195,28 @@ public class SecondGeneratorTest {
                 }
                 final List<String> operations = Stream.of(bigResult.getOperations()).filter(s -> !"".equals(s)).collect(Collectors.toList());
 
-                    if (!workFormulas.containsAll(operations)) {
-                        failFormulas.add(String.format("error operation for result: %s, " +
-                                        "next step : %d, " +
-                                        "prevSum: %d, " +
-                                        "step : %d, " +
-                                        "size : %d ",
-                                bigResult.toString(), nextNumber, prevSum.longValue(), step, workFormulas.size()));
+                if (!workFormulas.containsAll(operations)) {
+                    failFormulas.add(String.format("error operation for result: %s, " +
+                                    "next step : %d, " +
+                                    "prevSum: %d, " +
+                                    "step : %d, " +
+                                    "size : %d ",
+                            bigResult.toString(), nextNumber, prevSum.longValue(), step, workFormulas.size()));
 
-                    }
+                }
                 //       operations.forEach(f -> countFormulas.computeIfAbsent(f, s -> new Count().inc()));
 
             }
 //            assertThat((int) bigResult.getResult().longValue()).isEqualTo(steps.get(steps.size() - 1));
 
-            assertThat(Digs.getValue(Digs.sum(arSteps))).isEqualTo(Digs.getValue(expected));
+            //assertThat(Digs.getValue(Digs.sumSimple(arSteps))).isEqualTo(Digs.getValue(expected));
+            assertThat(Step.sum(arSteps).getValue()).isEqualTo(expected.getValue());
 
         }
         ;
 
 
     }
-
 
 
     @Test
@@ -243,10 +240,10 @@ public class SecondGeneratorTest {
 
 
         //for (int i = 0; i < 10; i++) {
-            final int[] expected = {1, 0};
-            final List<int[]> steps = SecondGenerator.generateBackStepsToResult(lesson, 5, expected);
+        final Step expected = Step.of(new int[]{1, 0});
+        final List<Step> steps = SecondGenerator.generateBackStepsToResult(lesson, 5, expected);
 
-            assertThat(Digs.getValue(Digs.sum(steps))).isEqualTo(Digs.getValue(expected));
+        assertThat(Step.sum(steps).getValue()).isEqualTo(expected.getValue());
         //}
 
 

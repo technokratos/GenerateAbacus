@@ -99,7 +99,7 @@ public class ProbabilisticLesson {
             //todo correct next step
             int[] step = pairToStep(nextStep);
             steps.add(step);
-            if (Digs.getValue(Digs.sum(steps)) == 0) {
+            if (Digs.getValue(Digs.sumSimple(steps)) == 0) {
                 //repeat to exclude zeros
                 steps.remove(steps.size() - 1);
                 final Pair[] nextStepTwice = getNextStep(currentSum, digitsForSteps[i]);

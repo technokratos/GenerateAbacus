@@ -21,7 +21,6 @@ public class SecondGenerator {
 
     public static final int ATTEMPT_LIMIT = 10;
     private final List<Lesson> lessons;
-    private boolean addSum = true;
 
     public SecondGenerator(List<Lesson> lessons) {
         this.lessons = lessons;
@@ -69,7 +68,7 @@ public class SecondGenerator {
                     steps=addDuplicate(steps, currentSettings);
                     steps=addDecimal(steps, currentSettings);
                     series.add(steps);
-                    boolean invalid = lesson.getMarker().mark(steps, addSum);
+                    boolean invalid = lesson.getMarker().mark(steps, true);
                     if (invalid) {
                         System.out.println("Invalid steps. Lesson " + lesson.getTitle() + " settings " + countSettings
                         + " series " + seriesIndex + " steps " + steps);
@@ -127,7 +126,7 @@ public class SecondGenerator {
 
     private List<Integer> generateObligatorySteps(Lesson lesson, Settings currentSettings) {
 
-        List<int[]> steps = new ArrayList<>(currentSettings.steps + (addSum ? 1 : 0));
+        List<Step> steps = new ArrayList<>(currentSettings.steps + (1));
 
 
         //getObligatoryPosition
@@ -140,22 +139,22 @@ public class SecondGenerator {
         }
         int[] digits = getDigitsForSteps(r, currentSettings);
 
-        List<int[]> obligatorySteps = new ArrayList<>(getObligatorySteps(lesson, currentSettings, digits[obligatoryPosition], obligatoryPosition == 0));
+        List<Step> obligatorySteps = new ArrayList<>(getObligatorySteps(lesson, currentSettings, digits[obligatoryPosition], obligatoryPosition == 0));
 
         if (obligatoryPosition == 0) {
             steps.addAll(obligatorySteps);
         } else {
-            int[] obligatoryResult = obligatorySteps.remove(0);
+            Step obligatoryResult = obligatorySteps.remove(0);
 
-            List<int[]> backSteps = generateBackStepsToResult(lesson, obligatoryPosition, obligatoryResult);
-            if (Digs.getValue(Digs.sum(backSteps)) != Digs.getValue(obligatoryResult)) {
+            List<Step> backSteps = generateBackStepsToResult(lesson, obligatoryPosition, obligatoryResult);
+            if (Step.sum(backSteps).getValue() != obligatoryResult.getValue()){// Digs.getValue(obligatoryResult)) {
                 //throw new IllegalStateException("Expected obligatory value isn't equals with back steps");
             }
             steps.addAll(backSteps);
             steps.addAll(obligatorySteps);
         }
 
-        steps = steps.stream().filter(s-> Digs.getValue(s) != 0).collect(Collectors.toList());
+        steps = steps.stream().filter(s-> s.getValue() != 0).collect(Collectors.toList());
 //        if (Digs.getValue(steps.get(0)) == 0) {
 //            steps.remove(0);
 //        }
@@ -165,10 +164,10 @@ public class SecondGenerator {
 //            steps.add(step);
 //        }
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
-        if (addSum) {
-            steps.add(Digs.sum(steps));
+        if (true) {
+            steps.add(Step.sum(steps));
         }
-        return Digs.getValue(steps);
+        return Step.getValues( steps);//Digs.getValue(steps);
     }
 
     // keys is null and pair is negative
@@ -181,7 +180,7 @@ public class SecondGenerator {
 
     }
 
-    static List<int[]> generateBackStepsToResult(Lesson lesson, int position, int[] result) {
+    static List<Step> generateBackStepsToResult(Lesson lesson, int position, Step result) {
 
         Random r = RandomLevel.getR();
         if (position == 0) {
@@ -191,17 +190,17 @@ public class SecondGenerator {
         } else {
 
 
-            int[] firstPosStep = new int[result.length];
-            int[] secondPosStep = new int[result.length];
+            Step firstPosStep = new Step(result.length());//new int[result.length];
+            Step secondPosStep = new Step(result.length());//new int[result.length];
             boolean positiveAttempt = SecondGenerator.generateBackStepsToResultBySign(lesson, result, firstPosStep, secondPosStep, true);
-            int[] firstNegStep = new int[result.length];
-            int[] secondNegStep = new int[result.length];
+            Step firstNegStep = new Step(result.length());
+            Step secondNegStep = new Step(result.length());
             boolean negativeAttmept = SecondGenerator.generateBackStepsToResultBySign(lesson, result, firstNegStep, secondNegStep, false);
             if (!negativeAttmept && !positiveAttempt) {
                 return Arrays.asList(result);
             }
-            final int[] firstStep;
-            final int[] secondStep;
+            final Step firstStep;
+            final Step secondStep;
             if (positiveAttempt && negativeAttmept) {
                 if (r.nextBoolean()) {
                     firstStep = firstPosStep;
@@ -221,7 +220,7 @@ public class SecondGenerator {
             if (position == 1) {
                 return new ArrayList<>(Arrays.asList(firstStep, secondStep));
             } else {
-                List<int[]> steps = new ArrayList<>(generateBackStepsToResult(lesson, position - 1, firstStep));
+                List<Step> steps = new ArrayList<>(generateBackStepsToResult(lesson, position - 1, firstStep));
                 steps.add(secondStep);
                 return steps;
 
@@ -232,11 +231,11 @@ public class SecondGenerator {
 
     }
 
-    static boolean generateBackStepsToResultBySign(Lesson lesson, int[] result, int[] firstStep, int[] secondStep, boolean sign) {
+    static boolean generateBackStepsToResultBySign(Lesson lesson, Step result, Step firstStep, Step secondStep, boolean sign) {
         Random r = RandomLevel.getR();
         int carry = 0;
-        for (int i = 0; i < result.length; i++) {
-            int resultValue = result[i] - (carry);
+        for (int i = 0; i < result.length(); i++) {
+            int resultValue = result.get(i) - (carry);
             List<Tuple2<Integer, Integer>> pairs = lesson.getResultMap(resultValue);
             if (pairs == null) {
                 //System.out.println("Not found back step for " + resultValue + " in result " + Arrays.toString(result));
@@ -265,14 +264,14 @@ public class SecondGenerator {
 
             int sumPair = pair.getA() + pair.getB();
             carry = (sign && sumPair >= 10) ? 1 : (! sign && sumPair < 0) ? -1 : 0;
-            firstStep[i] = pair.getA();
-            secondStep[i] = pair.getB();
+            firstStep.set(i,pair.getA());//[i] = pair.getA();
+            secondStep.set(i,pair.getB());//[i] = pair.getB();
         }
         return true;
     }
 
 
-    private List<int[]> getObligatorySteps(Lesson lesson, Settings currentSettings, int digits, boolean isFirst) {
+    private List<Step> getObligatorySteps(Lesson lesson, Settings currentSettings, int digits, boolean isFirst) {
 
         List<Integer> obligatoryKeyNumbers = lesson.getObligatoryKeyNumbers();
         if (isFirst) {
@@ -298,7 +297,7 @@ public class SecondGenerator {
         final int obligatoryDigit = maxObligatoryDigit - 1;
         //int obligatoryDigit = r.nextInt(maxObligatoryDigit);
 
-        int[] firstStep = new int[digits];  //todo
+        Step firstStep = new Step(digits);// int[digits];  //todo
 
         List<Integer> allCommonKeys = new ArrayList<>(lesson.getKeyNumbers());
         List<Integer> keysWithoutZero = allCommonKeys.stream().filter(n -> n > 0).collect(Collectors.toList());
@@ -309,16 +308,16 @@ public class SecondGenerator {
         List<Integer> keys = keysWithoutZero;
         for (int i = digits - 1; i >= 0; i--) {
             if (i == obligatoryDigit) {
-                firstStep[i] = firstObligatory;
+                firstStep.set(i, firstObligatory);//[i] = firstObligatory;
             } else {
-                firstStep[i] = (keys.isEmpty()) ? 0 : getRandom(keys);
+                firstStep.set( i, (keys.isEmpty()) ? 0 : getRandom(keys));//[i] = (keys.isEmpty()) ? 0 : getRandom(keys);
             }
             //add zero if need;
             keys = keysWithZero;
 
         }
 
-        int[] secondStep = getSecondObligatoryValue(lesson, firstStep, digits, obligatoryDigit, secondObligatory);
+        Step secondStep = getSecondObligatoryValue(lesson, firstStep, digits, obligatoryDigit, secondObligatory);
 
         return Arrays.asList(firstStep, secondStep);
     }
@@ -327,7 +326,7 @@ public class SecondGenerator {
 
 
     private static int getNextValue(Integer prevValue, List<Integer> pairs) {
-        //level.get(sum);
+        //level.get(sumSimple);
 
         //Integer index = r.nextInt(pairs.size());
 
@@ -350,52 +349,59 @@ public class SecondGenerator {
     private List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
 
         int[] digits = getDigitsForSteps(r, currentSettings);
-        List<int[]> steps = new ArrayList<>(currentSettings.steps + (addSum ? 1 : 0));
+        List<Step> steps = new ArrayList<>(currentSettings.steps + (true ? 1 : 0));
 
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
-        if (addSum) {
-            steps.add(Digs.sum(steps));
+        if (true) {
+            steps.add(Step.sum(steps));
         }
-        return Digs.getValue(steps);
+        return Step.getValues(steps);//Digs.getValue(steps);
     }
 
-    private void generateDirectStepsWithLimit(Lesson lesson, Settings currentSettings, int[] digits, List<int[]> steps) {
+    private void generateDirectStepsWithLimit(Lesson lesson, Settings currentSettings, int[] digits, List<Step> steps) {
         int stepCount = steps.size();
         int attemptCount = 0;
         while (stepCount < currentSettings.getSteps() && attemptCount < ATTEMPT_LIMIT) {
             //for (int i = 0; i < currentSettings.getSteps(); i++) {
-            int[] step = generateDirectStep(lesson, currentSettings, steps, digits[stepCount]);
-            if (getValue(step) != 0) {
+            Step step = generateDirectStep(lesson, currentSettings, steps, digits[stepCount]);
+            if (step.getValue() != 0) {
                 steps.add(step);
                 stepCount++;
             } else {
                 attemptCount++;
             }
             if (attemptCount >= ATTEMPT_LIMIT) {
-                System.out.println("generation step exceed limit, steps " + getValue(steps) + ", last step " + step);
+                System.out.println("generation step exceed limit, steps " + Step.getValues(steps) + ", last step " + step);
                 break;
             }
         }
     }
 
-    static int[] generateDirectStep(Lesson lesson, Settings currentSettings, List<int[]> steps, int digits) {
+    static Step generateDirectStep(Lesson lesson, Settings currentSettings, List<Step> steps, int digits) {
 
-        int step[] = new int[1 + currentSettings.getExtensionDigit()];
-        //Tuple2<int[], Integer> sumCarry
-        final int[] sum;
-        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sum(steps);
-        if (digits >= extSum.length) {
-            sum = new int[digits];
-            System.arraycopy(extSum,0, sum, 0, extSum.length );
+        //int step[] = new int[1 + currentSettings.getExtensionDigit()];
+        Step step = new Step(1 + currentSettings.getExtensionDigit());
+        //Tuple2<Step, Integer> sumCarry
+        final Step sum;
+//        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sumSimple(steps);
+        Step extSum = (steps.isEmpty()) ? new Step(step.length()) : Step.sum(steps);
+        if (digits >= extSum.length()) {
+            //sumSimple = new int[digits];
+            //System.arraycopy(extSum,0, sumSimple, 0, extSum.length );
+            sum = new Step(digits, extSum);
         } else {
             sum = extSum;
         }
         boolean sign = RandomLevel.getR().nextBoolean();
         int excludeZero = (steps.size() < currentSettings.getSteps()) ? 1 : 0;
-        List<Integer> negative = lesson.getNegative(sum[0]);
+
+//        boolean hasNegative = Digs.hasNegative(steps);
+//        boolean enableMinus = currentSettings.isEnableMinus();
+
+        List<Integer> negative = lesson.getNegative(sum.get(0));//sumSimple[0]);
 
         if (!sign && !possibleNegativeCarry(sum, 1) && negative != null) {
-            negative = negative.stream().filter(n -> (sum[0] + n) >= 0 + excludeZero).collect(Collectors.toList());
+            negative = negative.stream().filter(n -> (sum.get(0) + n) >= 0 + excludeZero).collect(Collectors.toList());
             if (negative.isEmpty()) {
                 sign = true;
             }
@@ -403,21 +409,21 @@ public class SecondGenerator {
             sign = true;
         }
 
-        List<Integer> positive = lesson.getPositive(sum[0]);
+        List<Integer> positive = lesson.getPositive(sum.get(0));
 
         if (sign && !possiblePositiveCarry(sum, 1)) {
-            positive = positive.stream().filter(n -> (sum[0] + n) <= 9).collect(Collectors.toList());
+            positive = positive.stream().filter(n -> (sum.get(0) + n) <= 9).collect(Collectors.toList());
             if (positive.isEmpty()) {
                 sign = false;
                 if (!possibleNegativeCarry(sum, 1) && negative != null) {
-                    negative = negative.stream().filter(n -> (sum[0] + n) >= 0 + excludeZero).collect(Collectors.toList());
+                    negative = negative.stream().filter(n -> (sum.get(0) + n) >= 0 + excludeZero).collect(Collectors.toList());
                     if (negative.isEmpty()) {
-                        System.out.println("Error impossible find next negative and positive for " + Arrays.toString(sum));
-                        return new int[digits];
+                        System.out.println("Error impossible find next negative and positive for " + sum);
+                        return new Step(digits);//new int[digits];
                     }
                 } else if (negative == null) {
-                    System.out.println("Error impossible find next negative and positive for " + Arrays.toString(sum));
-                    return new int[digits];
+                    System.out.println("Error impossible find next negative and positive for " + sum);
+                    return new Step(digits);//new int[digits];
                 }
             }
         }
@@ -426,12 +432,12 @@ public class SecondGenerator {
         return getStep(lesson, digits, step, sum, sign, excludeZero);
     }
 
-    static int[] getStep(Lesson lesson, int digits, int[] step, int[] sum, boolean sign, int excludeZero) {
+    static Step getStep(Lesson lesson, int digits, Step step, Step sum, boolean sign, int excludeZero) {
         int currentSum = 0;
         int currentCarry = 0;
         for (int i = 0; i < digits; i++) {
 
-            int prevSum = sum[i] ;//todo remove carry
+            int prevSum = sum.get(i) ;//todo remove carry
 
             List<Integer> numbers;
             if (sign) {
@@ -474,7 +480,7 @@ public class SecondGenerator {
 
             currentSum = prevSum + value + currentCarry;
             currentCarry = (currentSum >= 10) ? 1 : (currentSum < 0) ? -1 : 0;
-            step[i] = value;
+            step.set(i, value);
         }
         return step;
     }
@@ -516,7 +522,7 @@ public class SecondGenerator {
     }
 
 
-    private static int[] getSecondObligatoryValue(Lesson lesson, int[] prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
+    private static Step getSecondObligatoryValue(Lesson lesson, Step prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
 
 //        int firstObligatory = prevStep[obligatoryDigit];
 //        List<Integer> secondObligatories = lesson.getObligatoryPair(firstObligatory);
@@ -535,9 +541,9 @@ public class SecondGenerator {
 //        Integer secondObligatory = getRandom(secondObligatories);
         boolean sign = secondObligatory >= 0;
 
-        int step[] = new int[prevStep.length];
+        Step step = new Step(prevStep.length());//new int[prevStep.length];
         //Tuple2<int[], Integer> sumCarry
-        int[] sum = prevStep;
+        Step sum = prevStep;
 
         int carry = 0;
         int i = 0;
@@ -547,18 +553,18 @@ public class SecondGenerator {
                 value = secondObligatory;
             } else {
                 if (sign ) {
-                    if (lesson.getPositive(prevStep[i]).size() != 0) {
-                        value = getRandom(lesson.getPositive(prevStep[i]));
+                    if (lesson.getPositive(prevStep.get(i)).size() != 0) {
+                        value = getRandom(lesson.getPositive(prevStep.get(i)));
                     } else {
                         value = 0;
                     }
                 } else {
-                    List<Integer> negativePairs = lesson.getNegative(prevStep[i]);
+                    List<Integer> negativePairs = lesson.getNegative(prevStep.get(i));
 
                     if (!possibleNegativeCarry(prevStep, i + 1) ) {
                         final int index = i;
                         final int lambdaCarry = carry;
-                        negativePairs = negativePairs.stream().filter(p -> p + prevStep[index] + lambdaCarry >=0).collect(Collectors.toList());
+                        negativePairs = negativePairs.stream().filter(p -> p + prevStep.get(index) + lambdaCarry >=0).collect(Collectors.toList());
                     }
                     if (negativePairs != null && negativePairs.size() >0) {
                         value = getRandom(negativePairs);
@@ -568,8 +574,8 @@ public class SecondGenerator {
 
                 }
             }
-            step[i] = value - carry;
-            int digitSum = step[i] + prevStep[i];
+            step.set(i, value - carry);//[i] = value - carry;
+            int digitSum = step.get(i) + prevStep.get(i);
             carry = digitSum >= 10 ? 1 : digitSum < 0 ? -1 : 0;
         }
 //        if (carry != 0 && i< step.length ) {

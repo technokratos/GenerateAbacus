@@ -78,11 +78,11 @@ public class Generator {
 
     public int sum() {
         return stream(series).sum();
-//        int sum =0;
+//        int sumSimple =0;
 //        for (int i = 0; i < index; i++) {
-//            sum+= series[i];
+//            sumSimple+= series[i];
 //        }
-//        return sum;
+//        return sumSimple;
     }
 
     /**
@@ -104,6 +104,6 @@ public class Generator {
 
     @Override
     public String toString() {
-        return Arrays.toString(series) + " sum: " + sum();
+        return Arrays.toString(series) + " sumSimple: " + sum();
     }
 }

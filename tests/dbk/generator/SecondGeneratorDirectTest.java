@@ -127,14 +127,14 @@ public class SecondGeneratorDirectTest {
         long size = 28;
         List<String> workFormulas = initWorkFormulas(formulas, lesson, size);
 
-        final int[] prevSumArray = {9, 5};
+        final Step prevSumArray = Step.of(new int[]{9, 5});
         RandomLevel.setR(162531289283012L);
-        final int[] nextStep = SecondGenerator.generateDirectStep(lesson,
+        final Step nextStep = SecondGenerator.generateDirectStep(lesson,
                 lesson.getSettings().iterator().next(),
                 Arrays.asList(prevSumArray),
                 2);
-        final int value = Digs.getValue(nextStep);
-        final int prevSum = Digs.getValue(prevSumArray);
+        final int value = nextStep.getValue();// Digs.getValue(nextStep);
+        final int prevSum = prevSumArray.getValue();// Digs.getValue(prevSumArray);
         final BigResult bigResult = BigAbacusNumber.of(prevSum).add(value);
 
         assertThat(bigResult.getResult().intValue()).isEqualTo(prevSum + value);

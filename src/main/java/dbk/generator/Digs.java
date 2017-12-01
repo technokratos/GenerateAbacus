@@ -45,7 +45,7 @@ public class Digs {
 
 
     public static int[] add(int[] a, int[] b) {
-        //IntStream.range(0, value.length).mapToObj(i-> sum[i] + value[i]).mapToInt(i-> i.intValue()).toArray();
+        //IntStream.range(0, value.length).mapToObj(i-> sumSimple[i] + value[i]).mapToInt(i-> i.intValue()).toArray();
         int summa =0;
         int carry = 0;
         int length = ((a.length > b.length) ? a.length : b.length);
@@ -65,12 +65,12 @@ public class Digs {
         return i < b.length? b[i]: 0;
     }
 
-    public static int[] sum(List<int[]> path) {
+    public static int[] sumSimple(List<int[]> path) {
 
         int length = path.stream().mapToInt(step-> step.length).max().getAsInt();
         int[] firstStep = path.get(0);
         int[] sum = new int[length + 1];
-        //System.arraycopy(firstStep, 0, sum, 1, firstStep.length);
+        //System.arraycopy(firstStep, 0, sumSimple, 1, firstStep.length);
         int carry = 0;
         for(int[] step: path){
             int summa = 0;
@@ -87,7 +87,7 @@ public class Digs {
     }
 
     public static int[] sumWithCut(List<int[]> path) {
-        int[] sum = sum(path);
+        int[] sum = sumSimple(path);
         int lastValuePosition = sum.length - 1;
         int lastLengthPosition = path.get(path.size() - 1).length - 1;
         for (int i = sum.length - 1 ; i >= lastLengthPosition; i--) {
@@ -106,7 +106,7 @@ public class Digs {
     }
 
     public static Tuple2<int[], Integer> sumCarry(List<int[]> path) {
-        int[] sum = sum(path);
+        int[] sum = sumSimple(path);
         return  new Tuple2<>(Arrays.copyOfRange(sum, 0, sum.length - 1), sum[sum.length - 1]);
     }
 
@@ -144,6 +144,19 @@ public class Digs {
         }
     }
 
+    public static boolean possibleNegativeCarry(Step sum, int i) {
+        if (i>= sum.length()) {
+            return false;
+        }
+        if (sum.get(i) > 0) {
+            return true;
+        } else if (i < sum.length() -1 ) {
+            return possibleNegativeCarry(sum, i + 1);
+        } else {
+            return false;
+        }
+    }
+
 
     public static boolean possiblePositiveCarry(int[] sum, int i) {
         if (i>= sum.length) {
@@ -156,5 +169,45 @@ public class Digs {
         } else {
             return false;
         }
+    }
+
+    public static boolean possiblePositiveCarry(Step sum, int i) {
+        if (i>= sum.length()) {
+            return false;
+        }
+        if (sum.get(i) < 9) {
+            return true;
+        } else if (i < sum.length() - 1 ) {
+            return possiblePositiveCarry(sum, i + 1);
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean hasNegative(List<int[]> path) {
+        int length = path.stream().mapToInt(step-> step.length).max().getAsInt();
+        int[] firstStep = path.get(0);
+        int[] sum = new int[length + 1];
+        //System.arraycopy(firstStep, 0, sumSimple, 1, firstStep.length);
+        int carry = 0;
+        for(int[] step: path){
+            int summa = 0;
+            carry = 0;
+            for (int i = 0; i<step.length ; i++) {
+                int val = step[i] + sum[i];
+                carry = (val >= 10)? 1:(val<0)? -1:0;
+                summa = (val >= 10)? val - 10: (val<0)? val + 10: val;
+                sum[i] = summa;
+                sum[i + 1] += carry;
+            }
+            if (getValue(sum) < 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int[] array(int... ar) {
+        return ar;
     }
 }

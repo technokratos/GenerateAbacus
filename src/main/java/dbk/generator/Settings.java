@@ -127,6 +127,15 @@ public class Settings {
         return description;
     }
 
+
+    public boolean isEnableMinus() {
+        return enableMinus;
+    }
+
+    public Multi getMulti() {
+        return multi;
+    }
+
     /**
      * series
      * steps

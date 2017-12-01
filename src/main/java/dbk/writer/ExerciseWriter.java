@@ -18,7 +18,7 @@ import static dbk.texts.Texts.*;
  */
 public class ExerciseWriter {
     /**
-     * title, sum, separator
+     * title, sumSimple, separator
      */
     public static final int ADDITIONAL_ROWS = 6;
 
