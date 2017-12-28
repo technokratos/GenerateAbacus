@@ -109,7 +109,7 @@ public class BigAbacusNumber extends Number {
                 digits[i] = minusB.getResult();
             }
         }
-        //if (AbacusNumber.ONES.ONE.equals(digits[numOfDigits - 1].getOnes()) && {digits[numOfDigits -1].isFive())
+        //if (AbacusNumber.ONES.ONE.equals(maxDigits[numOfDigits - 1].getOnes()) && {maxDigits[numOfDigits -1].isFive())
         return new BigResult(new BigAbacusNumber(digits), operations);
     }
 
@@ -144,7 +144,7 @@ public class BigAbacusNumber extends Number {
     @Override
     public String toString() {
         return "{" +
-                "digits=" + Arrays.toString(digits) +
+                "maxDigits=" + Arrays.toString(digits) +
                 '}';
     }
 

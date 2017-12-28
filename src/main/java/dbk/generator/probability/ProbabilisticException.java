@@ -1,6 +1,7 @@
 package dbk.generator.probability;
 
-public class ProbabalisticsException extends Exception {
-    public ProbabalisticsException(String message) {
+public class ProbabilisticException extends Exception {
+    public ProbabilisticException(String message) {
+        super(message);
     }
 }

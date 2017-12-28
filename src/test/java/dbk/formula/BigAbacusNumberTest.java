@@ -85,7 +85,7 @@ public class BigAbacusNumberTest {
     @Test
     public void testMinus120_92() {
 
-        //{result={digits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, prevSum : {digits=[[0 + 0], [0 + 2], [0 + 1]]}, nextNumber : -92, step : 7, size : 48
+        //{result={maxDigits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, prevSum : {maxDigits=[[0 + 0], [0 + 2], [0 + 1]]}, nextNumber : -92, step : 7, size : 48
         //{result={digits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, next step : -92
     final BigResult overTen = new BigAbacusNumber(120)
                 .minus(new BigAbacusNumber(92));
@@ -98,7 +98,7 @@ public class BigAbacusNumberTest {
     @Test
     public void testAdd28_92() {
 
-        //{result={digits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, prevSum : {digits=[[0 + 0], [0 + 2], [0 + 1]]}, nextNumber : -92, step : 7, size : 48
+        //{result={maxDigits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, prevSum : {maxDigits=[[0 + 0], [0 + 2], [0 + 1]]}, nextNumber : -92, step : 7, size : 48
         //{result={digits=[[5 + 3], [0 + 2], [0 + 1]]}, operations=[-10+5+3, , ]}, expected: 28, next step : -92
         final BigResult overTen = new BigAbacusNumber(28)
                 .add(new BigAbacusNumber(92));

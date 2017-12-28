@@ -1,4 +1,8 @@
 package dbk.generator.types;
 
-public class Block {
+import dbk.adapter.Sheet;
+
+public interface Block {
+
+    public void writeBlock(Sheet sheet);
 }

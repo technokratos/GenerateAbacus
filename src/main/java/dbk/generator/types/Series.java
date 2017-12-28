@@ -1,10 +1,14 @@
-package dbk.generator.probability;
+package dbk.generator.types;
 
-import dbk.generator.Step;
+import dbk.generator.types.Step;
 
 import java.util.List;
 
 public class Series {
 
-    private List<List<Step>> series;
+    private List<Steps> series;
+
+    public Series(List<Steps> collect) {
+        this.series = collect;
+    }
 }

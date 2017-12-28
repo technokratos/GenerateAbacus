@@ -1,6 +1,7 @@
 package dbk.generator;
 
 import dbk.abacus.Tuple2;
+import dbk.generator.types.Step;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,14 +145,28 @@ public class Digs {
         }
     }
 
-    public static boolean possibleNegativeCarry(Step sum, int i) {
+    /**
+     *
+     * 3
+     * -6
+     * 7 -> carry -3
+     * -9
+     * 8 -> carry -12
+     *
+     */
+
+    public static boolean possibleNegativeCarry(Step sum, int i, boolean enableMinus) {
+        if (enableMinus) {
+            return true;
+        }
+
         if (i>= sum.length()) {
             return false;
         }
         if (sum.get(i) > 0) {
             return true;
         } else if (i < sum.length() -1 ) {
-            return possibleNegativeCarry(sum, i + 1);
+            return possibleNegativeCarry(sum, i + 1, enableMinus);
         } else {
             return false;
         }

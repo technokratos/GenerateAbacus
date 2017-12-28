@@ -1,7 +1,9 @@
-package dbk.generator;
+package dbk.generator.probability;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
+import dbk.generator.Digs;
+import dbk.generator.Settings;
 import dbk.rand.RandomLevel;
 
 import java.util.*;
@@ -106,7 +108,7 @@ public class ProbabilisticsGenerator {
 
     private List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
         int[] digits = getDigitsForSteps(currentSettings);
-        List<int[]> steps = new ArrayList<>(currentSettings.steps + 1);
+        List<int[]> steps = new ArrayList<>(currentSettings.getSteps() + 1);
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
         steps.add(Digs.sumSimple(steps));
         return Digs.getValue(steps);
@@ -231,7 +233,7 @@ public class ProbabilisticsGenerator {
         int[] digits = new int[settings.getSteps()];
 
         int extCount = settings.getExtensionCount();
-        int steps = settings.steps;
+        int steps = settings.getSteps();
         Set<Integer> positions = new HashSet<>();
         if (extCount == steps) {
             for (int i = 0; i < steps; i++) {

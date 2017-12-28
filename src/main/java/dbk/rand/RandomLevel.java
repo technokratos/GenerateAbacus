@@ -17,6 +17,13 @@ public class RandomLevel {
         return random;
     }
 
+    public static double nextValue(double max) {
+        return random.nextDouble() * max;
+    }
+    public static int nextValue(int max) {
+        return random.nextInt(max);
+    }
+
     public static void setR(long r) {
 
         System.out.println("Init random generator with seek:" + r);
@@ -32,5 +39,9 @@ public class RandomLevel {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean nextBoolean() {
+        return random.nextBoolean();
     }
 }

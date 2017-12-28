@@ -1,4 +1,8 @@
-package dbk.generator;
+package dbk.generator.types;
+
+import dbk.abacus.Pair;
+import dbk.abacus.Tuple2;
+import dbk.generator.Digs;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +43,7 @@ public class Step {
         values[i] = value;
     }
 
-    public void add(int i, int carry) {
+    public void sumDig(int i, int carry) {
         values[i] += carry;
     }
 
@@ -62,8 +66,8 @@ public class Step {
 
     @Override
     public String toString() {
-        String result = IntStream.range(1, length())
-                .map(index -> values[length() - index])
+        String result = IntStream.range(0, length())
+                .map(index -> values[length() - index - 1])
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining());
         String minusString = "";
@@ -71,7 +75,7 @@ public class Step {
             int sum = getMinusCarryValue();
             minusString = String.valueOf(sum);
         }
-        return  result + minusString;
+        return "("+minusCount+")" + result;// + minusString;
     }
 
     private int getMinusCarryValue() {
@@ -106,17 +110,20 @@ public class Step {
                 //sumSimple[i] = summa;
                 sum.set(i, summa);
                 //sumSimple[i + 1] += carry;
-                sum.add(i + 1, carry);
+                sum.sumDig(i + 1, carry);
             }
         }
         sum.setMinusCount(path.stream().mapToInt(Step::getMinusCount).sum());
         return sum ;
     }
 
-    public Step add(int[] operand) {
+    public Step addWithLoan(int[] operand) {
         int[] add = Digs.add(values, operand);
+
         Step result = new Step(add);
-        result.setMinusCount(this.minusCount);
+        if(Digs.getValue(add) < 0) {
+            result.minusCount = this.minusCount - 1;
+        }
         return result;
 
     }
@@ -131,5 +138,29 @@ public class Step {
 
     public Step minus(Step step) {
         return null;
+    }
+
+    public static Step of(int sum) {
+        int sign = sum < 0? -1: 1;
+        int digitsNum = ((sum == 0) ? 0:  (int) Math.floor(Math.log10(sum))) + 1;
+        int values[] = new int[digitsNum];
+
+        for (int i = 0 ; i < digitsNum; i++) {
+            values[i]= sign * (Math.abs(sum) % 10);
+            sum = sum / 10;
+        }
+        return new Step(values);
+
+    }
+
+    public int[] getValues() {
+
+        return values;
+    }
+
+    public List<Tuple2<Integer, Integer>> getValuesAndIndex() {
+        return IntStream.range(0, values.length)
+                .mapToObj(i-> Pair.of(values[i], i)).collect(Collectors.toList());
+
     }
 }

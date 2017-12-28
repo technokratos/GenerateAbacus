@@ -119,7 +119,7 @@ public class MainCardsApp {
         final BufferedImage first = numberImages.iterator().next();
 
         int border = 20;
-//        final int width = cols * (digits * OVAL_WIDTH) + (cols - 1) * horSpace + 2 * border;
+//        final int width = cols * (maxDigits * OVAL_WIDTH) + (cols - 1) * horSpace + 2 * border;
 //        final int height = rows * HEIGHT_NUMBER + (rows - 1) * vertSpace + 2 * border;
         final int width = cols * (first.getWidth()) + (cols - 1) * horSpace + 2 * border;
         final int height = rows * first.getHeight() + (rows - 1) * vertSpace + 2 * border;

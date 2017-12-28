@@ -35,6 +35,7 @@ public class Lesson {
 
     }
 
+
     public Lesson(String name, List<Settings> settings) {
         this.title = name;
         this.settings = settings.stream().map(Settings::new).collect(Collectors.toList());

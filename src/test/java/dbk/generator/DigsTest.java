@@ -1,5 +1,6 @@
 package dbk.generator;
 
+import dbk.generator.types.Step;
 import org.junit.Assert;
 import org.junit.Test;
 

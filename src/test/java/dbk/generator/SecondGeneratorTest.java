@@ -6,6 +6,7 @@ import dbk.abacus.Tuple2;
 import dbk.formula.BigAbacusNumber;
 import dbk.formula.BigResult;
 import dbk.formula.Formulas;
+import dbk.generator.types.Step;
 import dbk.rand.RandomLevel;
 import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
@@ -106,7 +107,7 @@ public class SecondGeneratorTest {
 
 
     /**
-     * Expecting empty but was:<["error operation for result: {result={digits=[[0 + 3], [0 + 3]]}, operations=[-5, -5+2]}, next step : -35, prevSum: 68, step : 4, size : 12 ",
+     * Expecting empty but was:<["error operation for result: {result={maxDigits=[[0 + 3], [0 + 3]]}, operations=[-5, -5+2]}, next step : -35, prevSum: 68, step : 4, size : 12 ",
      */
     @Ignore
     @Test

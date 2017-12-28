@@ -2,6 +2,7 @@ package dbk.generator;
 
 import dbk.abacus.Lesson;
 import dbk.abacus.Tuple2;
+import dbk.generator.types.Step;
 import dbk.rand.RandomLevel;
 
 import java.util.*;
@@ -160,7 +161,7 @@ public class SecondGenerator {
 //        }
 
 //        for (int i = steps.size(); i < currentSettings.getSteps(); i++) {
-//            int[] step = generateDirectStep(lesson, currentSettings, steps, digits[i]);
+//            int[] step = generateDirectStep(lesson, currentSettings, steps, maxDigits[i]);
 //            steps.add(step);
 //        }
         generateDirectStepsWithLimit(lesson, currentSettings, digits, steps);
@@ -281,7 +282,7 @@ public class SecondGenerator {
         List<Integer> pairs = lesson.getObligatoryPair(firstObligatory);
         Integer secondObligatory = getRandom(pairs);
         boolean needNegativeCary = firstObligatory + secondObligatory < 0;
-        //if need carry then maxObligatory => digits -1 =>0
+        //if need carry then maxObligatory => maxDigits -1 =>0
         final int maxObligatoryDigit;
         if (needNegativeCary) {
             if (digits == 1) {
@@ -297,7 +298,7 @@ public class SecondGenerator {
         final int obligatoryDigit = maxObligatoryDigit - 1;
         //int obligatoryDigit = r.nextInt(maxObligatoryDigit);
 
-        Step firstStep = new Step(digits);// int[digits];  //todo
+        Step firstStep = new Step(digits);// int[maxDigits];  //todo
 
         List<Integer> allCommonKeys = new ArrayList<>(lesson.getKeyNumbers());
         List<Integer> keysWithoutZero = allCommonKeys.stream().filter(n -> n > 0).collect(Collectors.toList());
@@ -317,7 +318,7 @@ public class SecondGenerator {
 
         }
 
-        Step secondStep = getSecondObligatoryValue(lesson, firstStep, digits, obligatoryDigit, secondObligatory);
+        Step secondStep = getSecondObligatoryValue(lesson, firstStep, digits, obligatoryDigit, secondObligatory, currentSettings);
 
         return Arrays.asList(firstStep, secondStep);
     }
@@ -346,7 +347,7 @@ public class SecondGenerator {
         return nextValue;
     }
 
-    private List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
+    List<Integer> generateCommonSteps(Lesson lesson, Settings currentSettings) {
 
         int[] digits = getDigitsForSteps(r, currentSettings);
         List<Step> steps = new ArrayList<>(currentSettings.steps + (true ? 1 : 0));
@@ -386,7 +387,7 @@ public class SecondGenerator {
 //        int[] extSum = (steps.isEmpty()) ? new int[step.length] : Digs.sumSimple(steps);
         Step extSum = (steps.isEmpty()) ? new Step(step.length()) : Step.sum(steps);
         if (digits >= extSum.length()) {
-            //sumSimple = new int[digits];
+            //sumSimple = new int[maxDigits];
             //System.arraycopy(extSum,0, sumSimple, 0, extSum.length );
             sum = new Step(digits, extSum);
         } else {
@@ -400,7 +401,7 @@ public class SecondGenerator {
 
         List<Integer> negative = lesson.getNegative(sum.get(0));//sumSimple[0]);
 
-        if (!sign && !possibleNegativeCarry(sum, 1) && negative != null) {
+        if (!sign && !possibleNegativeCarry(sum, 1, currentSettings.isEnableMinus()) && negative != null) {
             negative = negative.stream().filter(n -> (sum.get(0) + n) >= 0 + excludeZero).collect(Collectors.toList());
             if (negative.isEmpty()) {
                 sign = true;
@@ -415,24 +416,24 @@ public class SecondGenerator {
             positive = positive.stream().filter(n -> (sum.get(0) + n) <= 9).collect(Collectors.toList());
             if (positive.isEmpty()) {
                 sign = false;
-                if (!possibleNegativeCarry(sum, 1) && negative != null) {
+                if (!possibleNegativeCarry(sum, 1, false) && negative != null) {
                     negative = negative.stream().filter(n -> (sum.get(0) + n) >= 0 + excludeZero).collect(Collectors.toList());
                     if (negative.isEmpty()) {
                         System.out.println("Error impossible find next negative and positive for " + sum);
-                        return new Step(digits);//new int[digits];
+                        return new Step(digits);//new int[maxDigits];
                     }
                 } else if (negative == null) {
                     System.out.println("Error impossible find next negative and positive for " + sum);
-                    return new Step(digits);//new int[digits];
+                    return new Step(digits);//new int[maxDigits];
                 }
             }
         }
 
 
-        return getStep(lesson, digits, step, sum, sign, excludeZero);
+        return getStep(lesson, digits, step, sum, sign, excludeZero, currentSettings);
     }
 
-    static Step getStep(Lesson lesson, int digits, Step step, Step sum, boolean sign, int excludeZero) {
+    static Step getStep(Lesson lesson, int digits, Step step, Step sum, boolean sign, int excludeZero, Settings currentSettings) {
         int currentSum = 0;
         int currentCarry = 0;
         for (int i = 0; i < digits; i++) {
@@ -463,7 +464,7 @@ public class SecondGenerator {
                             .collect(Collectors.toList());
                 }
             } else {
-                if (!possibleNegativeCarry(sum, i + 1)) {
+                if (!possibleNegativeCarry(sum, i + 1, currentSettings.isEnableMinus())) {
                     numbers = numbers.stream()
                             .filter(n -> (prevSum + n) >= 0 + excludeZero)
                             .collect(Collectors.toList());
@@ -522,7 +523,7 @@ public class SecondGenerator {
     }
 
 
-    private static Step getSecondObligatoryValue(Lesson lesson, Step prevStep, int digits, int obligatoryDigit, Integer secondObligatory) {
+    private static Step getSecondObligatoryValue(Lesson lesson, Step prevStep, int digits, int obligatoryDigit, Integer secondObligatory, Settings currentSettings) {
 
 //        int firstObligatory = prevStep[obligatoryDigit];
 //        List<Integer> secondObligatories = lesson.getObligatoryPair(firstObligatory);
@@ -561,7 +562,7 @@ public class SecondGenerator {
                 } else {
                     List<Integer> negativePairs = lesson.getNegative(prevStep.get(i));
 
-                    if (!possibleNegativeCarry(prevStep, i + 1) ) {
+                    if (!possibleNegativeCarry(prevStep, i + 1, false) ) {
                         final int index = i;
                         final int lambdaCarry = carry;
                         negativePairs = negativePairs.stream().filter(p -> p + prevStep.get(index) + lambdaCarry >=0).collect(Collectors.toList());
