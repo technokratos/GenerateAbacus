@@ -45,7 +45,7 @@ public class Matrix {
         double sum = 0;
         boolean isZeroWeight = false;
         for (int i = 0; i < maxDig; i++) {
-            int value = step.get(i);
+            int value = step.getByIndex(i);
             Column column = columnsMap.get(value);
             if (column != null) {
                 double sumWeight = column.getSumWeight(new Context(0, value, i, maxDig));

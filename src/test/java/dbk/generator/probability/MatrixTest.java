@@ -32,7 +32,7 @@ public class MatrixTest {
 
             Matrix.BigContext bigContext = new Matrix.BigContext(i, maxStep - i, sum, digits, maxStep);
             Step nexValue = getNextBigValue(matrix, bigContext);
-            sum = sum.addWithLoan(nexValue.getValues());
+            sum = sum.addWithLoan(nexValue.getValues(), digits + 1);
             System.out.println(nexValue + " -> " + sum);
             list.add(nexValue);
 
@@ -60,21 +60,21 @@ public class MatrixTest {
 
     @Test
     public void getNextBigValue() throws ProbabilisticException {
-        RandomLevel.setR(2);
+        RandomLevel.setR(1);
         Matrix matrix = initMatrix();
 
         List<Step> list = new ArrayList<>();
-        int digits = 2;
+        int digits = 3;
         Step sum = new Step(digits);
 
         int secondDigit = 0;
-        int maxStep = 10;
+        int maxStep = 100;
 
         for (int i = 0; i < maxStep; i++) {
 
             Matrix.BigContext bigContext = new Matrix.BigContext(i, maxStep - i, sum, digits, maxStep);
             Step nexValue = getNextBigValue(matrix, bigContext);
-            sum = sum.addWithLoan(nexValue.getValues());
+            sum = sum.addWithLoan(nexValue.getValues(), digits );
             System.out.println(nexValue + " -> " + sum);
             list.add(nexValue);
             matrix.updateWeight();
@@ -84,10 +84,10 @@ public class MatrixTest {
 
         Matrix.Statistic stat = matrix.getStatistic();
         int commonSum = stat.commonCount;
-        assertThat(commonSum).isEqualTo(maxStep);
+        assertThat(commonSum).isEqualTo(digits * maxStep);
         System.out.println("Medium " + stat.med);
-        double expectedMed = maxStep / stat.cellsNumber;
-        assertThat(stat.med).isBetween(expectedMed -1 , expectedMed +1);
+        double expectedMed = digits * (double) maxStep / stat.cellsNumber;
+        assertThat(stat.med).isEqualTo(expectedMed);
 
         double relativeSigma = stat.getRelativeSigma();
         System.out.println("sigma/med " + relativeSigma);
@@ -108,9 +108,12 @@ public class MatrixTest {
 
         double plusWeight = matrix.setFilters(plusFilters)
                 .getWeightSum(sum, bigContext.maxDigits);
+
         double minusWeight = matrix.setFilters(minusFilters)
                 .getWeightSum(sum, bigContext.maxDigits);
+
         double signWeight = RandomLevel.nextValue(plusWeight + minusWeight);
+
         boolean sign = signWeight <= plusWeight;
 
         if(sign) {
@@ -121,7 +124,7 @@ public class MatrixTest {
         Step step = new Step(bigContext.maxDigits);
 
         for (int i = 0; i < bigContext.maxDigits; i++) {
-            int sumDig = sum.get(i);
+            int sumDig = sum.getByIndex(i);
             int nextValue;
             try {
                 nextValue = matrix.getNextValue(sumDig, new Matrix.Context(0, sumDig, i, bigContext.maxDigits));
@@ -146,7 +149,7 @@ public class MatrixTest {
         List<Integer> list = new ArrayList<>();
         int sum = 0;
         int secondDigit = 0;
-        int len = 10;
+        int len = 100;
         for (int i = 0; i < len; i++) {
             int nexValue = matrix.getNextValue(sum, new Matrix.Context(len - i, 0, 0, 1));
             sum+= nexValue;
@@ -171,12 +174,12 @@ public class MatrixTest {
         int commonSum = stat.commonCount;
         assertThat(commonSum).isEqualTo(len);
         System.out.println("Medium " + stat.med);
-        double expectedMed = len / stat.cellsNumber;
-        assertThat(stat.med).isBetween(expectedMed -1 , expectedMed +1);
+        double expectedMed = (double)len / stat.cellsNumber;
+        assertThat(stat.med).isEqualTo(expectedMed);
 
         double relativeSigma = stat.getRelativeSigma();
         System.out.println("sigma/med " + relativeSigma);
-        assertThat(relativeSigma).isLessThanOrEqualTo(1);
+        assertThat(relativeSigma).isLessThanOrEqualTo(1.2);
 
     }
 
@@ -199,7 +202,7 @@ public class MatrixTest {
         List<Integer> list = new ArrayList<>();
         int sum = 0;
         int secondDigit = 0;
-        int len = 10;
+        int len = 100;
         for (int i = 0; i < len; i++) {
             int nexValue = matrix.getNextValue(sum, null);
             sum+= nexValue;
@@ -224,8 +227,8 @@ public class MatrixTest {
         int commonSum = stat.commonCount;
         assertThat(commonSum).isEqualTo(len);
         System.out.println("Medium " + stat.med);
-        double expectedMed = len / stat.cellsNumber;
-        assertThat(stat.med).isBetween(expectedMed -1 , expectedMed +1);
+        double expectedMed = (double) len / stat.cellsNumber;
+        assertThat(stat.med).isEqualTo(expectedMed);
 
         double relativeSigma = stat.getRelativeSigma();
         System.out.println("sigma/med " + relativeSigma);

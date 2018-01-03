@@ -2,6 +2,7 @@ package dbk.generator;
 
 import dbk.generator.types.Step;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -54,49 +55,6 @@ public class DigsTest {
         Assert.assertFalse(possiblePositiveCarry(new int[]{0, 1, 9}, 2));
     }
 
-    @Test
-    public void testSum() {
-//        1
-//        9
-//        9
-//        1
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{2, 0}), Step.sum(asList(Step.of(new int[]{1}), Step.of(new int[]{1})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{3, 6, 0}), Step.sum(asList(Step.of(new int[]{1, 3}), Step.of(new int[]{2, 3})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{2,2,0}), Step.sum(asList(Step.of(new int[]{1, 1}), Step.of(new int[]{1, 1})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{0,1}), Step.sum(asList(Step.of(new int[]{3}), Step.of(new int[]{7})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{2, 3, 1}), Step.sum(asList(Step.of(new int[]{6, 6}), Step.of(new int[]{6, 6})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{0,0}), Step.sum(asList(Step.of(new int[]{1}), Step.of(new int[]{-1})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{8, 1, 0}), Step.sum(asList(Step.of(new int[]{2, 3}), Step.of(new int[]{-4, -1})))));
-        Assert.assertTrue(Objects.equals(Step.of(new int[]{0, 2}), Step.sum(asList(Step.of(new int[]{1}), Step.of(new int[]{9}), Step.of(new int[]{9}), Step.of(new int[]{1})))));
-
-
-//        93        615        94        191        112 = 10012
-        //0         17        91                -16                -9808
-
-        //93 + 615 = 708
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{8,0,7,0}), Step.sum(asList(Step.of(new int[]{3,9}), Step.of(new int[]{5,1,6})))));
-        //708+ 94 = 802
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{2,0,8,0}), Step.sum(asList(Step.of(new int[]{8,0,7}), Step.of(new int[]{4, 9})))));
-        // 802 + 191 = 1003
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{3,9,9,0}), Step.sum(asList(Step.of(new int[]{2,0,8}), Step.of(new int[]{1, 9, 1})))));
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{5,0,1,1}), Step.sum(asList(Step.of(new int[]{3,9,9}), Step.of(new int[]{2, 1, 1})))));
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{5,5,5,0}), Step.sum(asList(Step.of(new int[]{9,3}), Step.of(new int[]{6,1,5})))));
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{4,0,6,0}), Step.sum(asList(Step.of(new int[]{9,3}), Step.of(new int[]{6,1,5}), Step.of(new int[]{9,4})))));
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{5,9,7,0}), Step.sum(asList(Step.of(new int[]{9,3}), Step.of(new int[]{6,1,5}), Step.of(new int[]{9,4}), Step.of(new int[]{1,9,1})))));
-//615+        94        191        112
-
-        Assert.assertTrue(Objects.equals( Step.of(new int[]{2,1,0,1}), Step.sum(asList(Step.of(new int[]{5,1,6}), Step.of(new int[]{4,9}), Step.of(new int[]{1,9,1}), Step.of(new int[]{2,1,1})))));
-
-//        Assert.assertTrue(Objects.equals( Step.of(new int[]{4,0,6,0}, sum(Objects.asList(Step.of(new int[]{9,3}, Step.of(new int[]{6,1,5}, Step.of(new int[]{9,4}))));
-//        //Assert.assertTrue(Objects.equals( Step.of(new int[]{1,1,2}, sum(Objects.asList(Step.of(new int[]{9,3}, Step.of(new int[]{6,1,5}, Step.of(new int[]{9,4}, Step.of(new int[]{1,9,1}))));
-
-//        Assert.assertTrue(Objects.equals(Step.of(new int[]{2, 9, 0, 0}, sum(Objects.asList(Step.of(new int[]{0}, Step.of(new int[]{1,7}, Step.of(new int[]{9,1}, Step.of(new int[]{-1,-6}, Step.of(new int[]{1,1,2}))));
-
-
-
-
-
-    }
 
     @Test
     public void checkGetValue() {
@@ -119,6 +77,7 @@ public class DigsTest {
     }
 
     @Test
+    @Ignore
     public void testHasNegative() {
         int[][] steps = new int[][]{{3 }, {-5}};
 
